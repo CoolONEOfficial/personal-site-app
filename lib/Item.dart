@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:personal_site_app/components.dart';
 
 class Item extends StatefulWidget {
-  final Map<String, dynamic> data;
+  final DocumentSnapshot ssDoc;
   final Function() onEditClicked;
-  final Function() onDeleteClicked;
+  final Function() onDeleted;
 
   const Item(
-    this.data, {
+    this.ssDoc, {
     Key key,
     this.onEditClicked,
-    this.onDeleteClicked,
+    this.onDeleted,
   }) : super(key: key);
 
   @override
@@ -22,9 +22,9 @@ class _ItemState extends State<Item> {
   @override
   Widget build(BuildContext ctx) {
     return ListTile(
-      title: Text(widget.data['title']['en'].toString()),
-      subtitle:
-          Text((widget.data['date'] as Timestamp).toDate().toIso8601String()),
+      title: Text(widget.ssDoc.data['title']['en'].toString()),
+      subtitle: Text(
+          (widget.ssDoc.data['date'] as Timestamp).toDate().toIso8601String()),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -38,8 +38,9 @@ class _ItemState extends State<Item> {
               showDialog(
                   context: context,
                   builder: (BuildContext ctx) {
-                    return buildDialogDelete(ctx, onDelete: () {
-                      // TODO: delete
+                    return buildDialogDelete(ctx, onDelete: () async {
+                      await widget.ssDoc.reference.delete();
+                      widget.onDeleted();
                     });
                   });
             },

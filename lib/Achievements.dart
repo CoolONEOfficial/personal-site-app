@@ -17,6 +17,22 @@ class Achievements extends CallableWidget {
   };
 
   @override
+  _AchievementsState createState() => _AchievementsState();
+
+  @override
+  onCreateClick(ctx) async {
+    await Navigator.push(
+      ctx,
+      MaterialPageRoute(
+        builder: (context) =>
+            ScreenEditCreate.create(Achievements.listMap, 'achievements'),
+      ),
+    );
+  }
+}
+
+class _AchievementsState extends State<Achievements> {
+  @override
   Widget build(BuildContext ctx) {
     return buildFutureBuilder(
         databaseReference.collection("achievements").getDocuments(),
@@ -26,32 +42,26 @@ class Achievements extends CallableWidget {
         itemBuilder: (context, index) {
           final mDoc = ss.documents[index];
           return Item(
-            mDoc.data,
+            mDoc,
             onEditClicked: () async {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => ScreenEditCreate.edit(
-                    listMap,
+                    Achievements.listMap,
                     mDoc.data,
                     mDoc,
                   ),
                 ),
               );
+              setState(() {});
+            },
+            onDeleted: () {
+              setState(() {});
             },
           );
         },
       );
     });
-  }
-
-  @override
-  onCreateClick(ctx) async {
-    await Navigator.push(
-      ctx,
-      MaterialPageRoute(
-        builder: (context) => ScreenEditCreate.create(listMap, 'achievements'),
-      ),
-    );
   }
 }

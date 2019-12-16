@@ -12,7 +12,7 @@ class ScreenControl extends StatefulWidget {
   _ScreenControlState createState() => _ScreenControlState();
 }
 
-abstract class CallableWidget extends StatelessWidget {
+abstract class CallableWidget extends StatefulWidget {
   onCreateClick(BuildContext ctx);
 }
 
