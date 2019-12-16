@@ -8,6 +8,14 @@ import 'Item.dart';
 import 'main.dart';
 
 class Achievements extends CallableWidget {
+  static const Map<String, ItemType> listMap = {
+    'date': ItemType.DATE,
+    'title': ItemType.LOCALIZED_STRING,
+    'organisation': ItemType.STRING,
+    'images': ItemType.BOOL,
+    'singleImage': ItemType.BOOL
+  };
+
   @override
   Widget build(BuildContext ctx) {
     return buildFutureBuilder(
@@ -23,10 +31,10 @@ class Achievements extends CallableWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ScreenEditCreate(
-                    EditCreateMode.EDIT,
-                    data: mDoc.data,
-                    ssDoc: mDoc,
+                  builder: (context) => ScreenEditCreate.edit(
+                    listMap,
+                    mDoc.data,
+                    mDoc,
                   ),
                 ),
               );
@@ -42,7 +50,7 @@ class Achievements extends CallableWidget {
     await Navigator.push(
       ctx,
       MaterialPageRoute(
-        builder: (context) => ScreenEditCreate(EditCreateMode.CREATE),
+        builder: (context) => ScreenEditCreate.create(listMap, 'achievements'),
       ),
     );
   }

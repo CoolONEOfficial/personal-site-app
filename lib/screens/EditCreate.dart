@@ -15,12 +15,29 @@ class ScreenEditCreate extends StatefulWidget {
   final Map<String, dynamic> data;
   final EditCreateMode mode;
   final DocumentSnapshot ssDoc;
+  final String collName;
+  final Map<String, ItemType> listMap;
 
-  const ScreenEditCreate(this.mode, {this.data = const {}, this.ssDoc, Key key})
+  const ScreenEditCreate.create(this.listMap, this.collName,
+      {this.mode = EditCreateMode.CREATE,
+      this.ssDoc,
+      this.data = const {},
+      Key key})
+      : super(key: key);
+
+  const ScreenEditCreate.edit(this.listMap, this.data, this.ssDoc,
+      {this.mode = EditCreateMode.EDIT, this.collName, Key key})
       : super(key: key);
 
   @override
   _ScreenEditCreateState createState() => _ScreenEditCreateState();
+}
+
+enum ItemType {
+  LOCALIZED_STRING,
+  STRING,
+  BOOL,
+  DATE,
 }
 
 class _ScreenEditCreateState extends State<ScreenEditCreate> {
@@ -32,38 +49,52 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
 
   @override
   void initState() {
-    list = [
-      LocalizedStringItem(
-        'title',
-        (val) {
-          tempData['title'] = val;
-        },
-        startValue: widget.data['title'] != null
-            ? Map<String, dynamic>.from(widget.data['title'])
-            : null,
-      ),
-      StringItem(
-        'organisation',
-        (val) {
-          tempData['organisation'] = val;
-        },
-        startValue: widget.data['organisation'],
-      ),
-      BoolItem(
-        'singleImage',
-        (val) {
-          tempData['singleImage'] = val;
-        },
-        startValue: widget.data['singleImage'],
-      ),
-      DateItem(
-        'date',
-        (val) {
-          tempData['date'] = val;
-        },
-        startValue: widget.data['date'],
-      )
-    ];
+    list = [];
+
+    widget.listMap.forEach((mKey, mVal) {
+      var item;
+      switch (mVal) {
+        case ItemType.LOCALIZED_STRING:
+          item = LocalizedStringItem(
+            mKey,
+            (val) {
+              tempData[mKey] = val;
+            },
+            startValue: widget.data[mKey] != null
+                ? Map<String, dynamic>.from(widget.data[mKey])
+                : null,
+          );
+          break;
+        case ItemType.STRING:
+          item = StringItem(
+            mKey,
+            (val) {
+              tempData[mKey] = val;
+            },
+            startValue: widget.data[mKey],
+          );
+          break;
+        case ItemType.BOOL:
+          item = BoolItem(
+            mKey,
+            (val) {
+              tempData[mKey] = val;
+            },
+            startValue: widget.data[mKey],
+          );
+          break;
+        case ItemType.DATE:
+          item = DateItem(
+            mKey,
+            (val) {
+              tempData[mKey] = val;
+            },
+            startValue: widget.data[mKey],
+          );
+          break;
+      }
+      list.add(item);
+    });
 
     super.initState();
   }
@@ -90,7 +121,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
                   break;
                 case EditCreateMode.CREATE:
                   await databaseReference
-                      .collection("achievements")
+                      .collection(widget.collName)
                       .add(tempData);
                   break;
                 default:
