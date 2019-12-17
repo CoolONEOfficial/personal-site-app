@@ -12,7 +12,7 @@ class Achievements extends CallableWidget {
     'date': ItemType.DATE,
     'title': ItemType.LOCALIZED_STRING,
     'organisation': ItemType.STRING,
-    'images': ItemType.BOOL,
+    'images': ItemType.IMAGES,
     'singleImage': ItemType.SINGLE_IMAGE
   };
 

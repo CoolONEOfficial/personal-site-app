@@ -3,10 +3,13 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personal_site_app/main.dart';
 import 'package:personal_site_app/screens/items/BoolItem.dart';
 import 'package:personal_site_app/screens/items/DateItem.dart';
+import 'package:personal_site_app/screens/items/ImagesItem.dart';
 import 'package:personal_site_app/screens/items/LocalizedStringItem.dart';
 import 'package:personal_site_app/screens/items/SingleImageItem.dart';
 import 'package:personal_site_app/screens/items/StringItem.dart';
@@ -38,7 +41,7 @@ class ScreenEditCreate extends StatefulWidget {
   _ScreenEditCreateState createState() => _ScreenEditCreateState();
 }
 
-enum ItemType { LOCALIZED_STRING, STRING, BOOL, DATE, SINGLE_IMAGE }
+enum ItemType { LOCALIZED_STRING, STRING, BOOL, DATE, SINGLE_IMAGE, IMAGES }
 
 class _ScreenEditCreateState extends State<ScreenEditCreate> {
   ScreenEditCreateArgs get args => ModalRoute.of(context).settings.arguments;
@@ -101,6 +104,14 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               docPath:
                   widget.ssDoc != null ? widget.ssDoc.reference.path : null);
           break;
+        case ItemType.IMAGES:
+          item = ImagesItem(mKey, (val) {
+            tempData[mKey] = val;
+          },
+              startValue: widget.data[mKey],
+              docPath:
+                  widget.ssDoc != null ? widget.ssDoc.reference.path : null);
+          break;
       }
       list.add(item);
     });
@@ -109,15 +120,6 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
   }
 
   final storage = FirebaseStorage.instance.ref();
-
-  deleteImages(DocumentReference refDoc) {
-    final imgStr = '${refDoc.path}/singleImage/';
-    debugPrint('deleting old singleimage.. $imgStr');
-    return Future.wait([
-      storage.child('${imgStr}1.jpg').delete(),
-      storage.child('${imgStr}1_400x400.jpg').delete()
-    ]);
-  }
 
   syncImages(DocumentReference refDoc) async {
 //    debugPrint('start sync.. ssDoc: ${ssDoc.toString()}');
@@ -131,7 +133,12 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
       switch (mType) {
         case ItemType.SINGLE_IMAGE:
           if (widget.mode == EditCreateMode.EDIT && mOrigVal != null) {
-            await deleteImages(refDoc);
+            final imgStr = '${refDoc.path}/singleImage/';
+            debugPrint('deleting old singleimage.. $imgStr');
+            return Future.wait([
+              storage.child('${imgStr}1.jpg').delete(),
+              storage.child('${imgStr}1_400x400.jpg').delete()
+            ]);
           }
 
           if (mVal is FileImage) {
@@ -139,6 +146,34 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             await storage
                 .child('${refDoc.path}/singleImage/1.jpg')
                 .putFile(mVal.file)
+                .onComplete;
+            debugPrint('upload complete!');
+          }
+          break;
+        case ItemType.IMAGES:
+          if (widget.mode == EditCreateMode.EDIT && mOrigVal != null) {
+            var imageId = 1;
+            do {
+              final imgStr = '${refDoc.path}/images/$imageId';
+              debugPrint('deleting old images.. $imgStr');
+              try {
+                await Future.wait([
+                  storage.child('${imgStr}.jpg').delete(),
+                  storage.child('${imgStr}_400x400.jpg').delete()
+                ]);
+              } catch (e) {
+                return;
+              }
+              imageId++;
+            } while (true);
+          }
+
+          for (var mId = 0; mId < mVal.length; mId++) {
+            final FileImage mImage = mVal[mId];
+            debugPrint('uploading image..');
+            await storage
+                .child('${refDoc.path}/images/${(mId + 1).toString()}.jpg')
+                .putFile(mImage.file)
                 .onComplete;
             debugPrint('upload complete!');
           }
@@ -153,7 +188,11 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
   Widget build(BuildContext ctx) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(''),
+        title: Text(widget.collName != null
+            ? 'New item in ${widget.collName}'
+            : widget.ssDoc.data.containsKey('title')
+                ? widget.ssDoc.data['title']['en']
+                : '...'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context, false),
@@ -171,6 +210,11 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
                 switch (mType) {
                   case ItemType.SINGLE_IMAGE:
                     if (mVal is ImageProvider) {
+                      copyTempData[mName] = true;
+                    }
+                    break;
+                  case ItemType.IMAGES:
+                    if (mVal is List) {
                       copyTempData[mName] = true;
                     }
                     break;

@@ -54,16 +54,15 @@ class _SingleImageItemState extends State<SingleImageItem> {
         )
       : Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: deleteImage,
-            ),
             Image(
               image: imageProvider,
               width: 70,
               height: 70,
+            ),
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: deleteImage,
             ),
           ],
         );
@@ -73,6 +72,7 @@ class _SingleImageItemState extends State<SingleImageItem> {
     return ListTile(
         title: Text(widget.name),
         trailing: Container(
+          alignment: Alignment.centerRight,
           width: 200,
           child: !changed && widget.startValue == true
               ? buildFutureBuilder(
