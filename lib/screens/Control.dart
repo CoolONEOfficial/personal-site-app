@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:personal_site_app/Achievements.dart';
+import 'package:personal_site_app/tabs/Achievements.dart';
 import 'package:personal_site_app/main.dart';
+import 'package:personal_site_app/tabs/Books.dart';
+import 'package:personal_site_app/tabs/Events.dart';
+import 'package:personal_site_app/tabs/Projects.dart';
 
 class ScreenControlArgs {}
 
@@ -28,9 +31,9 @@ class _ScreenControlState extends State<ScreenControl>
     tabController = TabController(vsync: this, length: tabs.length);
     tabData = [
       Achievements(),
-      Achievements(),
-      Achievements(),
-      Achievements(),
+      Events(),
+      Projects(),
+      Books(),
     ];
 
     super.initState();
@@ -54,8 +57,8 @@ class _ScreenControlState extends State<ScreenControl>
   static const tabs = [
     {'icon': Icons.star, 'name': 'achievements'},
     {'icon': Icons.today, 'name': 'events'},
-    {'icon': Icons.code, 'name': 'achievements'},
-    {'icon': Icons.book, 'name': 'achievements'},
+    {'icon': Icons.code, 'name': 'projects'},
+    {'icon': Icons.book, 'name': 'books'},
   ];
 
   @override

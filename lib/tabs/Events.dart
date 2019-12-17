@@ -4,38 +4,37 @@ import 'package:personal_site_app/components.dart';
 import 'package:personal_site_app/screens/Control.dart';
 import 'package:personal_site_app/screens/EditCreate.dart';
 
-import 'Item.dart';
-import 'main.dart';
+import '../Item.dart';
+import '../main.dart';
 
-class Achievements extends CallableWidget {
+class Events extends CallableWidget {
   static const Map<String, ItemType> listMap = {
-    'date': ItemType.DATE,
     'title': ItemType.LOCALIZED_STRING,
+    'date': ItemType.DATE,
     'organisation': ItemType.STRING,
     'images': ItemType.IMAGES,
     'singleImage': ItemType.SINGLE_IMAGE
   };
 
   @override
-  _AchievementsState createState() => _AchievementsState();
+  _EventsState createState() => _EventsState();
 
   @override
   onCreateClick(ctx) async {
     await Navigator.push(
       ctx,
       MaterialPageRoute(
-        builder: (context) =>
-            ScreenEditCreate.create(Achievements.listMap, 'achievements'),
+        builder: (context) => ScreenEditCreate.create(Events.listMap, 'events'),
       ),
     );
   }
 }
 
-class _AchievementsState extends State<Achievements> {
+class _EventsState extends State<Events> {
   @override
   Widget build(BuildContext ctx) {
     return buildFutureBuilder(
-        databaseReference.collection('achievements').getDocuments(),
+        databaseReference.collection('events').getDocuments(),
         (QuerySnapshot ss) {
       return ListView.builder(
         itemCount: ss.documents.length,
@@ -47,8 +46,8 @@ class _AchievementsState extends State<Achievements> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ScreenEditCreate.edit(
-                      Achievements.listMap, mDoc.data, mDoc),
+                  builder: (context) =>
+                      ScreenEditCreate.edit(Events.listMap, mDoc.data, mDoc),
                 ),
               );
               setState(() {});
