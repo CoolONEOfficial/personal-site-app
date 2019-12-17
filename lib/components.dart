@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-Widget buildFutureBuilder<T>(Future<T> future, Function(T) builder) =>
+Widget buildFutureBuilder<T>(
+  Future<T> future,
+  Function(T) builder, {
+  double fixedWidth,
+}) =>
     FutureBuilder(
       future: future,
-      builder: (ctx, ss) => _buildBuilder(ss, builder, buildProgress()),
+      builder: (ctx, ss) =>
+          _buildBuilder(ss, builder, buildProgress(fixedWidth: fixedWidth)),
     );
 
 Widget buildStreamBuilder<T>(
@@ -16,13 +21,22 @@ Widget buildStreamBuilder<T>(
       builder: (ctx, ss) => _buildBuilder(ss, builder, buildProgress()),
     );
 
-Widget buildProgress() => Center(
+Widget _buildFixedWidthProgress(double width) => Container(
+      width: width,
+      child: buildProgress(),
+    );
+
+Widget _buildDefaultProgress() => Center(
       child: Container(
         width: 10,
         height: 10,
         child: CircularProgressIndicator(),
       ),
     );
+
+Widget buildProgress({double fixedWidth}) => fixedWidth != null
+    ? _buildFixedWidthProgress(fixedWidth)
+    : _buildDefaultProgress();
 
 Widget buildError(String error) => buildMessage(Icons.error, error);
 

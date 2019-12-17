@@ -13,7 +13,7 @@ class Achievements extends CallableWidget {
     'title': ItemType.LOCALIZED_STRING,
     'organisation': ItemType.STRING,
     'images': ItemType.BOOL,
-    'singleImage': ItemType.BOOL
+    'singleImage': ItemType.SINGLE_IMAGE
   };
 
   @override
@@ -35,7 +35,7 @@ class _AchievementsState extends State<Achievements> {
   @override
   Widget build(BuildContext ctx) {
     return buildFutureBuilder(
-        databaseReference.collection("achievements").getDocuments(),
+        databaseReference.collection('achievements').getDocuments(),
         (QuerySnapshot ss) {
       return ListView.builder(
         itemCount: ss.documents.length,
@@ -48,10 +48,7 @@ class _AchievementsState extends State<Achievements> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ScreenEditCreate.edit(
-                    Achievements.listMap,
-                    mDoc.data,
-                    mDoc,
-                  ),
+                      Achievements.listMap, mDoc.data, mDoc),
                 ),
               );
               setState(() {});
