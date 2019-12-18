@@ -27,7 +27,6 @@ class _StringItemState extends State<StringItem> {
           child: TextField(
             controller: textController,
             onChanged: widget.onChanged,
-            decoration: InputDecoration(border: InputBorder.none),
           )),
     );
   }

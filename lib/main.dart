@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:personal_site_app/screens/Auth.dart';
 import 'package:personal_site_app/screens/Control.dart';
 
 final databaseReference = Firestore.instance;
+final storageReference = FirebaseStorage.instance.ref();
 
 void main() => runApp(MyApp());
 

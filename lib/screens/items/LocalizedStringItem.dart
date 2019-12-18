@@ -34,7 +34,7 @@ class _LocalizedStringItemState extends State<LocalizedStringItem> {
             child: TextField(
               controller: textControllerRu,
               decoration:
-                  InputDecoration(border: InputBorder.none, hintText: 'Ru'),
+                  InputDecoration(hintText: 'Ru'),
               onChanged: (str) {
                 widget.onChanged({"ru": str, "en": textControllerEn.text});
               },
@@ -45,7 +45,7 @@ class _LocalizedStringItemState extends State<LocalizedStringItem> {
             child: TextField(
               controller: textControllerEn,
               decoration:
-                  InputDecoration(border: InputBorder.none, hintText: 'En'),
+                  InputDecoration(hintText: 'En'),
               onChanged: (str) {
                 widget.onChanged({"ru": textControllerRu.text, "en": str});
               },

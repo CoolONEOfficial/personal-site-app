@@ -12,8 +12,9 @@ class Achievements extends CallableWidget {
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
     'organisation': ItemType.STRING,
+    'logo': ItemType.IMAGE_SINGLE,
     'images': ItemType.IMAGES,
-    'singleImage': ItemType.SINGLE_IMAGE
+    'singleImage': ItemType.IMAGE_SINGLE
   };
 
   @override
@@ -43,6 +44,7 @@ class _AchievementsState extends State<Achievements> {
           final mDoc = ss.documents[index];
           return Item(
             mDoc,
+            Achievements.listMap,
             onEditClicked: () async {
               await Navigator.push(
                 context,

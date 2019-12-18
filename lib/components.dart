@@ -40,11 +40,15 @@ Widget buildProgress({double fixedWidth}) => fixedWidth != null
 
 Widget buildError(String error) => buildMessage(Icons.error, error);
 
-Widget _buildBuilder(AsyncSnapshot ss, builder, progress) => ss.connectionState == ConnectionState.done
-    ? builder(ss.data)
-    : Center(
-        child: ss.hasError ? buildError(ss.error) : progress,
-      );
+Widget _buildBuilder(
+  AsyncSnapshot ss,
+  builder,
+  progress, {
+  int fixedWidth,
+}) =>
+    ss.connectionState == ConnectionState.done
+        ? builder(ss.data)
+        : ss.hasError ? buildError(ss.error) : progress;
 
 Widget buildMessage(IconData icon, String text) => Center(
       child: Column(

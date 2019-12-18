@@ -7,13 +7,52 @@ import 'package:personal_site_app/screens/EditCreate.dart';
 import '../Item.dart';
 import '../main.dart';
 
+enum EventType {
+  OTHER,
+  HACKATHON,
+  MEETUP,
+  CONFERENCE,
+  WEBINAR,
+  LECTURE,
+  TRAINING,
+  MASTER_CLASS,
+  FORUM,
+  TOURNAMENT,
+  COMPETITION,
+  EXHIBITION,
+  FESTIVAL,
+  ROUND_TABLE,
+  STUDY,
+  EXCURSION
+}
+
+final List<String> eventsEnumMap = [
+  'Other',
+  'Hack',
+  'Meetup',
+  'Conference',
+  'Webinar',
+  'Lecture',
+  'Training',
+  'Master class',
+  'Forum',
+  'Tournament',
+  'Competition',
+  'Exhibition',
+  'Festival',
+  'Round table',
+  'Study',
+  'Excursion',
+];
+
 class Events extends CallableWidget {
   static const Map<String, ItemType> listMap = {
     'title': ItemType.LOCALIZED_STRING,
+    'type': ItemType.ENUM_EVENTS,
     'date': ItemType.DATE,
     'organisation': ItemType.STRING,
     'images': ItemType.IMAGES,
-    'singleImage': ItemType.SINGLE_IMAGE
+    'singleImage': ItemType.IMAGE_SINGLE
   };
 
   @override
@@ -42,6 +81,7 @@ class _EventsState extends State<Events> {
           final mDoc = ss.documents[index];
           return Item(
             mDoc,
+            Events.listMap,
             onEditClicked: () async {
               await Navigator.push(
                 context,

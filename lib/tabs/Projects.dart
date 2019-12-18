@@ -11,9 +11,8 @@ class Projects extends CallableWidget {
   static const Map<String, ItemType> listMap = {
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
-    'organisation': ItemType.STRING,
     'images': ItemType.IMAGES,
-    'singleImage': ItemType.SINGLE_IMAGE
+    'singleImage': ItemType.IMAGE_SINGLE
   };
 
   @override
@@ -43,12 +42,13 @@ class _ProjectsState extends State<Projects> {
           final mDoc = ss.documents[index];
           return Item(
             mDoc,
+            Projects.listMap,
             onEditClicked: () async {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ScreenEditCreate.edit(
-                      Projects.listMap, mDoc.data, mDoc),
+                  builder: (context) =>
+                      ScreenEditCreate.edit(Projects.listMap, mDoc.data, mDoc),
                 ),
               );
               setState(() {});

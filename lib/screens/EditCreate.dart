@@ -1,18 +1,19 @@
-import 'dart:io';
+import 'dart:convert';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:multi_image_picker/multi_image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:personal_site_app/main.dart';
 import 'package:personal_site_app/screens/items/BoolItem.dart';
 import 'package:personal_site_app/screens/items/DateItem.dart';
+import 'package:personal_site_app/screens/items/EnumItem.dart';
 import 'package:personal_site_app/screens/items/ImagesItem.dart';
 import 'package:personal_site_app/screens/items/LocalizedStringItem.dart';
-import 'package:personal_site_app/screens/items/SingleImageItem.dart';
+import 'package:personal_site_app/screens/items/ImageSingleItem.dart';
 import 'package:personal_site_app/screens/items/StringItem.dart';
+import 'package:personal_site_app/tabs/Events.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class ScreenEditCreateArgs {}
 
@@ -41,7 +42,16 @@ class ScreenEditCreate extends StatefulWidget {
   _ScreenEditCreateState createState() => _ScreenEditCreateState();
 }
 
-enum ItemType { LOCALIZED_STRING, STRING, BOOL, DATE, SINGLE_IMAGE, IMAGES }
+enum ItemType {
+  LOCALIZED_STRING,
+  STRING,
+  BOOL,
+  DATE,
+  IMAGE_SINGLE,
+  IMAGE_LOGO,
+  IMAGES,
+  ENUM_EVENTS,
+}
 
 class _ScreenEditCreateState extends State<ScreenEditCreate> {
   ScreenEditCreateArgs get args => ModalRoute.of(context).settings.arguments;
@@ -72,6 +82,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
           item = StringItem(
             mKey,
             (val) {
+              debugPrint('write string "$val" on key "$mKey"');
               tempData[mKey] = val;
             },
             startValue: widget.data[mKey],
@@ -96,21 +107,41 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
                 widget.data[mKey] != null ? widget.data[mKey].toDate() : null,
           );
           break;
-        case ItemType.SINGLE_IMAGE:
-          item = SingleImageItem(mKey, (val) {
+        case ItemType.IMAGE_SINGLE:
+          item = ImageSingleItem(mKey, (val) {
             tempData[mKey] = val;
           },
               startValue: widget.data[mKey],
               docPath:
                   widget.ssDoc != null ? widget.ssDoc.reference.path : null);
           break;
-        case ItemType.IMAGES:
-          item = ImagesItem(mKey, (val) {
+        case ItemType.IMAGE_LOGO:
+          item = ImageSingleItem(mKey, (val) {
             tempData[mKey] = val;
           },
               startValue: widget.data[mKey],
               docPath:
-                  widget.ssDoc != null ? widget.ssDoc.reference.path : null);
+              widget.ssDoc != null ? widget.ssDoc.reference.path : null);
+          break;
+        case ItemType.IMAGES:
+          item = ImagesItem(
+            mKey,
+            (val) {
+              tempData[mKey] = val;
+            },
+            startValue: widget.data[mKey],
+            docPath: widget.ssDoc != null ? widget.ssDoc.reference.path : null,
+          );
+          break;
+        case ItemType.ENUM_EVENTS:
+          item = EnumItem(
+            mKey,
+            (val) {
+              tempData[mKey] = val;
+            },
+            eventsEnumMap,
+            startValue: widget.data[mKey],
+          );
           break;
       }
       list.add(item);
@@ -119,7 +150,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
     super.initState();
   }
 
-  final storage = FirebaseStorage.instance.ref();
+  final storage = storageReference;
 
   syncImages(DocumentReference refDoc) async {
 //    debugPrint('start sync.. ssDoc: ${ssDoc.toString()}');
@@ -130,56 +161,43 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
           mVal = tempData[mName],
           mOrigVal = widget.data[mName];
 
-      switch (mType) {
-        case ItemType.SINGLE_IMAGE:
-          if (widget.mode == EditCreateMode.EDIT && mOrigVal != null) {
-            final imgStr = '${refDoc.path}/singleImage/';
-            debugPrint('deleting old singleimage.. $imgStr');
-            return Future.wait([
-              storage.child('${imgStr}1.jpg').delete(),
-              storage.child('${imgStr}1_400x400.jpg').delete()
-            ]);
-          }
+      if (mVal != null) {
+        switch (mType) {
+          case ItemType.IMAGE_SINGLE:
+            if (widget.mode == EditCreateMode.EDIT && mOrigVal != null) {
+              ImageSingleItem.deleteStorageSingleImage(refDoc.path, mName);
+            }
 
-          if (mVal is FileImage) {
-            debugPrint('uploading image..');
-            await storage
-                .child('${refDoc.path}/singleImage/1.jpg')
-                .putFile(mVal.file)
-                .onComplete;
-            debugPrint('upload complete!');
-          }
-          break;
-        case ItemType.IMAGES:
-          if (widget.mode == EditCreateMode.EDIT && mOrigVal != null) {
-            var imageId = 1;
-            do {
-              final imgStr = '${refDoc.path}/images/$imageId';
-              debugPrint('deleting old images.. $imgStr');
-              try {
-                await Future.wait([
-                  storage.child('${imgStr}.jpg').delete(),
-                  storage.child('${imgStr}_400x400.jpg').delete()
-                ]);
-              } catch (e) {
-                return;
-              }
-              imageId++;
-            } while (true);
-          }
+            if (mVal is FileImage) {
+              debugPrint('uploading image..');
+              await storage
+                  .child('${refDoc.path}/$mName/1.jpg')
+                  .putFile(mVal.file)
+                  .onComplete;
+              debugPrint('upload complete!');
+            }
+            break;
+          case ItemType.IMAGES:
+            if (widget.mode == EditCreateMode.EDIT && mOrigVal != null) {
+              await ImagesItem.deleteStorageImages(refDoc.path);
+            }
 
-          for (var mId = 0; mId < mVal.length; mId++) {
-            final FileImage mImage = mVal[mId];
-            debugPrint('uploading image..');
-            await storage
-                .child('${refDoc.path}/images/${(mId + 1).toString()}.jpg')
-                .putFile(mImage.file)
-                .onComplete;
-            debugPrint('upload complete!');
-          }
-          break;
-        default:
-          break;
+            for (var mId = 0; mId < mVal.length; mId++) {
+              final FileImage mImage = mVal[mId];
+              debugPrint('uploading image..');
+              await storage
+                  .child('${refDoc.path}/images/${(mId + 1).toString()}.jpg')
+                  .putFile(mImage.file)
+                  .onComplete;
+              debugPrint('upload complete! deleting cached image..');
+
+              await mImage.file.delete();
+              debugPrint('delete complete!');
+            }
+            break;
+          default:
+            break;
+        }
       }
     }
   }
@@ -201,6 +219,9 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
           IconButton(
             icon: Icon(Icons.save),
             onPressed: () async {
+              final pr = new ProgressDialog(context);
+              pr.show();
+
               var copyTempData = Map.from(tempData);
               for (var mEntry in widget.listMap.entries) {
                 final mName = mEntry.key,
@@ -208,7 +229,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
                     mVal = tempData[mName];
 
                 switch (mType) {
-                  case ItemType.SINGLE_IMAGE:
+                  case ItemType.IMAGE_SINGLE:
                     if (mVal is ImageProvider) {
                       copyTempData[mName] = true;
                     }
@@ -229,7 +250,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
                   await widget.ssDoc.reference
                       .setData(Map.from(copyTempData), merge: true);
 
-                  syncImages(widget.ssDoc.reference);
+                  await syncImages(widget.ssDoc.reference);
 
                   break;
                 case EditCreateMode.CREATE:
@@ -238,12 +259,14 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
                       .collection(widget.collName)
                       .add(Map.from(copyTempData));
 
-                  syncImages(newSsDoc);
+                  await syncImages(newSsDoc);
 
                   break;
                 default:
                   throw Exception('mode is not set!!');
               }
+
+              pr.hide();
 
               Navigator.pop(context, true);
             },

@@ -13,7 +13,7 @@ class Books extends CallableWidget {
     'date': ItemType.DATE,
     'organisation': ItemType.STRING,
     'images': ItemType.IMAGES,
-    'singleImage': ItemType.SINGLE_IMAGE
+    'singleImage': ItemType.IMAGE_SINGLE
   };
 
   @override
@@ -43,6 +43,7 @@ class _BooksState extends State<Books> {
           final mDoc = ss.documents[index];
           return Item(
             mDoc,
+            Books.listMap,
             onEditClicked: () async {
               await Navigator.push(
                 context,

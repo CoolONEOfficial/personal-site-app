@@ -1,14 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
-import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:personal_site_app/components.dart';
+import 'package:personal_site_app/main.dart';
 
 class ImagesItem extends StatefulWidget {
   final String name;
@@ -20,6 +20,23 @@ class ImagesItem extends StatefulWidget {
 
   @override
   _ImagesItemState createState() => _ImagesItemState();
+
+  static Future deleteStorageImages(path) async {
+    var imageId = 1;
+    do {
+      final imgStr = '$path/images/$imageId';
+      debugPrint('deleting old images.. $imgStr');
+      try {
+        await Future.wait([
+          storageReference.child('${imgStr}.jpg').delete(),
+          storageReference.child('${imgStr}_400x400.jpg').delete()
+        ]);
+      } catch (e) {
+        return;
+      }
+      imageId++;
+    } while (true);
+  }
 }
 
 class _ImagesItemState extends State<ImagesItem> {
@@ -27,13 +44,22 @@ class _ImagesItemState extends State<ImagesItem> {
   bool changed = false;
   bool localSelected = false;
 
+  static final Random _random = Random.secure();
+
+  static String generateRandomStr([int length = 32]) {
+    final values = List<int>.generate(length, (i) => _random.nextInt(256));
+
+    return base64Url.encode(values);
+  }
+
   pickImages() async {
     final assetList = await MultiImagePicker.pickImages(maxImages: 8);
     for (var mAssetId = 0; mAssetId < assetList.length; mAssetId++) {
       final mAsset = assetList[mAssetId];
-      final File f = await File(
-              '${await getApplicationDocumentsDirectory()}/${widget.docPath}/$mAssetId.jpg')
-          .create();
+      final imgPath =
+          '${(await getApplicationDocumentsDirectory()).path}/images/${widget.docPath ?? generateRandomStr()}/${(mAssetId + 1).toString()}.jpg';
+      debugPrint('imgPath: $imgPath');
+      final File f = await File(imgPath).create(recursive: true);
       await f.writeAsBytes((await mAsset.getByteData(quality: 80))
           .buffer
           .asUint8List()
@@ -66,7 +92,7 @@ class _ImagesItemState extends State<ImagesItem> {
                     image: mImage,
                   ))
               .toList()
-              .sublist(0, imagesList.length > 3 ? 3 : imagesList.length - 1)
+              .sublist(0, imagesList.length > 3 ? 3 : imagesList.length)
                 ..add(IconButton(
                   icon: Icon(Icons.delete),
                   onPressed: deleteImage,
@@ -81,10 +107,7 @@ class _ImagesItemState extends State<ImagesItem> {
         debugPrint('mPath: $imgPath');
         imagesList.add(
           NetworkImage(
-            await FirebaseStorage.instance
-                .ref()
-                .child(imgPath)
-                .getDownloadURL(),
+            await storageReference.child(imgPath).getDownloadURL(),
           ),
         );
       } catch (e) {
@@ -100,13 +123,12 @@ class _ImagesItemState extends State<ImagesItem> {
   Widget build(BuildContext ctx) {
     return ListTile(
         title: Text(widget.name),
-        trailing: Container(
-          alignment: Alignment.centerRight,
-          width: 200,
-          child: !changed && widget.startValue == true
-              ? buildFutureBuilder(loadImages(), (_) => buildTrailing(),
-                  fixedWidth: 100)
-              : buildTrailing(),
-        ));
+        trailing: !changed && widget.startValue == true
+            ? buildFutureBuilder(
+                loadImages(),
+                (_) => buildTrailing(),
+                fixedWidth: 100,
+              )
+            : buildTrailing());
   }
 }

@@ -1,23 +1,36 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:personal_site_app/components.dart';
+import 'package:personal_site_app/main.dart';
 
-class SingleImageItem extends StatefulWidget {
+class ImageSingleItem extends StatefulWidget {
   final String name;
   final String docPath;
   final bool startValue;
   final Function(ImageProvider) onChanged;
 
-  SingleImageItem(this.name, this.onChanged, {this.startValue, this.docPath});
+  ImageSingleItem(
+    this.name,
+    this.onChanged, {
+    this.startValue,
+    this.docPath,
+  });
 
   @override
-  _SingleImageItemState createState() => _SingleImageItemState();
+  _ImageSingleItemState createState() => _ImageSingleItemState();
+
+  static Future deleteStorageSingleImage(String path, String name) {
+    final imgStr = '$path/$name/';
+    debugPrint('deleting old singleimage.. $imgStr');
+    return Future.wait([
+      storageReference.child('${imgStr}1.jpg').delete(),
+      storageReference.child('${imgStr}1_400x400.jpg').delete()
+    ]);
+  }
 }
 
-class _SingleImageItemState extends State<SingleImageItem> {
+class _ImageSingleItemState extends State<ImageSingleItem> {
   ImageProvider imageProvider;
   bool changed = false;
   bool localSelected = false;
@@ -71,19 +84,17 @@ class _SingleImageItemState extends State<SingleImageItem> {
   Widget build(BuildContext ctx) {
     return ListTile(
         title: Text(widget.name),
-        trailing: Container(
-          alignment: Alignment.centerRight,
-          width: 200,
-          child: !changed && widget.startValue == true
-              ? buildFutureBuilder(
-                  FirebaseStorage.instance
-                      .ref()
-                      .child('${widget.docPath}/singleImage/1.jpg')
-                      .getDownloadURL(), (imageUrl) {
+        trailing: !changed && widget.startValue == true
+            ? buildFutureBuilder(
+                storageReference
+                    .child('${widget.docPath}/${widget.name}/1.jpg')
+                    .getDownloadURL(),
+                (imageUrl) {
                   imageProvider = NetworkImage(imageUrl);
                   return buildTrailing();
-                }, fixedWidth: 100)
-              : buildTrailing(),
-        ));
+                },
+                fixedWidth: 100,
+              )
+            : buildTrailing());
   }
 }
