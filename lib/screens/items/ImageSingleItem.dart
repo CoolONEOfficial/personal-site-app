@@ -20,13 +20,17 @@ class ImageSingleItem extends StatefulWidget {
   @override
   _ImageSingleItemState createState() => _ImageSingleItemState();
 
-  static Future deleteStorageSingleImage(String path, String name) {
+  static Future deleteStorageSingleImage(String path, String name) async {
     final imgStr = '$path/$name/';
     debugPrint('deleting old singleimage.. $imgStr');
-    return Future.wait([
-      storageReference.child('${imgStr}1.jpg').delete(),
-      storageReference.child('${imgStr}1_400x400.jpg').delete()
-    ]);
+    try {
+      await Future.wait([
+        storageReference.child('${imgStr}1.jpg').delete(),
+        storageReference.child('${imgStr}1_400x400.jpg').delete()
+      ]);
+    } catch (e) {
+      debugPrint('error while deleting singleimage: $e');
+    }
   }
 }
 

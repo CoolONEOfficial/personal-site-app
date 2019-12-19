@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:personal_site_app/TabList.dart';
 import 'package:personal_site_app/components.dart';
 import 'package:personal_site_app/screens/Control.dart';
 import 'package:personal_site_app/screens/EditCreate.dart';
@@ -8,12 +9,18 @@ import '../Item.dart';
 import '../main.dart';
 
 class Projects extends CallableWidget {
-  static const Map<String, ItemType> listMap = {
+  static const ItemMap itemMap = const ItemMap({
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
+    'logo': ItemType.IMAGE_SINGLE,
     'images': ItemType.IMAGES,
-    'singleImage': ItemType.IMAGE_SINGLE
-  };
+    'singleImage': ItemType.IMAGE_SINGLE,
+    'organisation': ItemType.STRING,
+  }, {
+    'youtube': ItemType.STRING,
+    'github': ItemType.STRING,
+    'site': ItemType.STRING
+  });
 
   @override
   _ProjectsState createState() => _ProjectsState();
@@ -23,8 +30,8 @@ class Projects extends CallableWidget {
     await Navigator.push(
       ctx,
       MaterialPageRoute(
-        builder: (context) =>
-            ScreenEditCreate.create(Projects.listMap, 'projects'),
+        builder: (context) => ScreenEditCreate.create(
+            Projects.itemMap, databaseReference.collection('projects')),
       ),
     );
   }
@@ -32,33 +39,5 @@ class Projects extends CallableWidget {
 
 class _ProjectsState extends State<Projects> {
   @override
-  Widget build(BuildContext ctx) {
-    return buildFutureBuilder(
-        databaseReference.collection('projects').getDocuments(),
-        (QuerySnapshot ss) {
-      return ListView.builder(
-        itemCount: ss.documents.length,
-        itemBuilder: (context, index) {
-          final mDoc = ss.documents[index];
-          return Item(
-            mDoc,
-            Projects.listMap,
-            onEditClicked: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      ScreenEditCreate.edit(Projects.listMap, mDoc.data, mDoc),
-                ),
-              );
-              setState(() {});
-            },
-            onDeleted: () {
-              setState(() {});
-            },
-          );
-        },
-      );
-    });
-  }
+  Widget build(BuildContext ctx) => TabList('projects', Projects.itemMap);
 }

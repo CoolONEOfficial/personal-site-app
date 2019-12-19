@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:personal_site_app/TabList.dart';
 import 'package:personal_site_app/components.dart';
 import 'package:personal_site_app/screens/Control.dart';
 import 'package:personal_site_app/screens/EditCreate.dart';
@@ -46,14 +47,18 @@ final List<String> eventsEnumMap = [
 ];
 
 class Events extends CallableWidget {
-  static const Map<String, ItemType> listMap = {
-    'title': ItemType.LOCALIZED_STRING,
+  static const ItemMap itemMap = const ItemMap({
     'type': ItemType.ENUM_EVENTS,
+    'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
-    'organisation': ItemType.STRING,
+    'logo': ItemType.IMAGE_SINGLE,
     'images': ItemType.IMAGES,
-    'singleImage': ItemType.IMAGE_SINGLE
-  };
+    'singleImage': ItemType.IMAGE_SINGLE,
+    'organisation': ItemType.STRING,
+  }, {
+    'youtube': ItemType.STRING,
+    'site': ItemType.STRING
+  });
 
   @override
   _EventsState createState() => _EventsState();
@@ -63,7 +68,8 @@ class Events extends CallableWidget {
     await Navigator.push(
       ctx,
       MaterialPageRoute(
-        builder: (context) => ScreenEditCreate.create(Events.listMap, 'events'),
+        builder: (context) => ScreenEditCreate.create(
+            Events.itemMap, databaseReference.collection('events')),
       ),
     );
   }
@@ -71,33 +77,6 @@ class Events extends CallableWidget {
 
 class _EventsState extends State<Events> {
   @override
-  Widget build(BuildContext ctx) {
-    return buildFutureBuilder(
-        databaseReference.collection('events').getDocuments(),
-        (QuerySnapshot ss) {
-      return ListView.builder(
-        itemCount: ss.documents.length,
-        itemBuilder: (context, index) {
-          final mDoc = ss.documents[index];
-          return Item(
-            mDoc,
-            Events.listMap,
-            onEditClicked: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      ScreenEditCreate.edit(Events.listMap, mDoc.data, mDoc),
-                ),
-              );
-              setState(() {});
-            },
-            onDeleted: () {
-              setState(() {});
-            },
-          );
-        },
-      );
-    });
-  }
+  Widget build(BuildContext ctx) =>
+      TabList('events', Events.itemMap);
 }

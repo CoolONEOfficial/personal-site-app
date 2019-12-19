@@ -1,8 +1,4 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:personal_site_app/main.dart';
 import 'package:personal_site_app/screens/items/BoolItem.dart';
@@ -19,23 +15,50 @@ class ScreenEditCreateArgs {}
 
 enum EditCreateMode { EDIT, CREATE }
 
+class ItemMap {
+  final Map<String, ItemType> previewMap;
+  final Map<String, ItemType> pageMap;
+
+  const ItemMap(this.previewMap, this.pageMap);
+}
+
+class ItemData {
+  final Map<String, dynamic> previewData;
+  final Map<String, dynamic> pageData;
+
+  const ItemData(this.previewData, this.pageData);
+
+  static fromItemDoc(ItemDoc itemDoc) async =>
+      ItemData(itemDoc.previewDoc.data, itemDoc.pageDoc.data);
+}
+
+class ItemDoc {
+  final DocumentSnapshot previewDoc;
+  final DocumentSnapshot pageDoc;
+
+  const ItemDoc(this.previewDoc, this.pageDoc);
+
+  static fromRootDoc(DocumentSnapshot rootDoc) async => ItemDoc(rootDoc,
+      (await rootDoc.reference.collection('page').document('doc').get()));
+}
+
 class ScreenEditCreate extends StatefulWidget {
   static const route = '/screens/edit_create';
-  final Map<String, dynamic> data;
+  final ItemData data;
   final EditCreateMode mode;
-  final DocumentSnapshot ssDoc;
-  final String collName;
-  final Map<String, ItemType> listMap;
+  final ItemDoc itemDoc;
+  final CollectionReference rootCollRef;
+  final ItemMap itemMap;
 
-  const ScreenEditCreate.create(this.listMap, this.collName,
+  const ScreenEditCreate.create(this.itemMap, this.rootCollRef,
       {this.mode = EditCreateMode.CREATE,
-      this.ssDoc,
-      this.data = const {},
+      this.itemDoc = const ItemDoc(null, null),
+      this.data = const ItemData({}, {}),
       Key key})
       : super(key: key);
 
-  const ScreenEditCreate.edit(this.listMap, this.data, this.ssDoc,
-      {this.mode = EditCreateMode.EDIT, this.collName, Key key})
+  const ScreenEditCreate.edit(this.itemMap, this.data, this.itemDoc,
+      {this.mode = EditCreateMode.EDIT, this.rootCollRef, Key key})
       : super(key: key);
 
   @override
@@ -56,15 +79,28 @@ enum ItemType {
 class _ScreenEditCreateState extends State<ScreenEditCreate> {
   ScreenEditCreateArgs get args => ModalRoute.of(context).settings.arguments;
 
-  Map<String, dynamic> tempData = {};
+  ItemData tempData = ItemData({}, {});
 
-  List<Widget> list;
+  List<Widget> list = [];
 
   @override
   void initState() {
-    list = [];
+    initList(widget.data, tempData, widget.itemDoc);
 
-    widget.listMap.forEach((mKey, mVal) {
+    super.initState();
+  }
+
+  initList(ItemData data, ItemData tempData, ItemDoc itemDoc) {
+    _initList(widget.itemMap.previewMap, widget.data.previewData,
+        tempData.previewData, itemDoc.previewDoc);
+    list.add(Divider());
+    _initList(widget.itemMap.pageMap, widget.data.pageData, tempData.pageData,
+        itemDoc.pageDoc);
+  }
+
+  _initList(Map<String, dynamic> map, Map<String, dynamic> data,
+      Map<String, dynamic> tempData, DocumentSnapshot ssDoc) {
+    map.forEach((mKey, mVal) {
       var item;
       switch (mVal) {
         case ItemType.LOCALIZED_STRING:
@@ -73,8 +109,8 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             (val) {
               tempData[mKey] = val;
             },
-            startValue: widget.data[mKey] != null
-                ? Map<String, dynamic>.from(widget.data[mKey])
+            startValue: data[mKey] != null
+                ? Map<String, dynamic>.from(data[mKey])
                 : null,
           );
           break;
@@ -85,7 +121,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               debugPrint('write string "$val" on key "$mKey"');
               tempData[mKey] = val;
             },
-            startValue: widget.data[mKey],
+            startValue: data[mKey],
           );
           break;
         case ItemType.BOOL:
@@ -94,7 +130,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             (val) {
               tempData[mKey] = val;
             },
-            startValue: widget.data[mKey],
+            startValue: data[mKey],
           );
           break;
         case ItemType.DATE:
@@ -103,25 +139,18 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             (val) {
               tempData[mKey] = val;
             },
-            startValue:
-                widget.data[mKey] != null ? widget.data[mKey].toDate() : null,
+            startValue: data[mKey]?.toDate(),
           );
           break;
         case ItemType.IMAGE_SINGLE:
           item = ImageSingleItem(mKey, (val) {
             tempData[mKey] = val;
-          },
-              startValue: widget.data[mKey],
-              docPath:
-                  widget.ssDoc != null ? widget.ssDoc.reference.path : null);
+          }, startValue: data[mKey], docPath: ssDoc?.reference?.path);
           break;
         case ItemType.IMAGE_LOGO:
           item = ImageSingleItem(mKey, (val) {
             tempData[mKey] = val;
-          },
-              startValue: widget.data[mKey],
-              docPath:
-              widget.ssDoc != null ? widget.ssDoc.reference.path : null);
+          }, startValue: data[mKey], docPath: ssDoc?.reference?.path);
           break;
         case ItemType.IMAGES:
           item = ImagesItem(
@@ -129,8 +158,8 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             (val) {
               tempData[mKey] = val;
             },
-            startValue: widget.data[mKey],
-            docPath: widget.ssDoc != null ? widget.ssDoc.reference.path : null,
+            startValue: data[mKey],
+            docPath: ssDoc?.reference?.path,
           );
           break;
         case ItemType.ENUM_EVENTS:
@@ -140,26 +169,27 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               tempData[mKey] = val;
             },
             eventsEnumMap,
-            startValue: widget.data[mKey],
+            startValue: data[mKey],
           );
           break;
       }
       list.add(item);
     });
-
-    super.initState();
   }
 
-  final storage = storageReference;
-
-  syncImages(DocumentReference refDoc) async {
+  _syncImages(
+    Map<String, ItemType> itemMapData,
+    Map<String, dynamic> tempItemData,
+    Map<String, dynamic> itemData,
+    DocumentReference refDoc,
+  ) async {
 //    debugPrint('start sync.. ssDoc: ${ssDoc.toString()}');
 
-    for (var mEntry in widget.listMap.entries) {
+    for (var mEntry in itemMapData.entries) {
       final mName = mEntry.key,
           mType = mEntry.value,
-          mVal = tempData[mName],
-          mOrigVal = widget.data[mName];
+          mVal = tempItemData[mName],
+          mOrigVal = itemData[mName];
 
       if (mVal != null) {
         switch (mType) {
@@ -170,7 +200,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
 
             if (mVal is FileImage) {
               debugPrint('uploading image..');
-              await storage
+              await storageReference
                   .child('${refDoc.path}/$mName/1.jpg')
                   .putFile(mVal.file)
                   .onComplete;
@@ -185,7 +215,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             for (var mId = 0; mId < mVal.length; mId++) {
               final FileImage mImage = mVal[mId];
               debugPrint('uploading image..');
-              await storage
+              await storageReference
                   .child('${refDoc.path}/images/${(mId + 1).toString()}.jpg')
                   .putFile(mImage.file)
                   .onComplete;
@@ -202,14 +232,99 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
     }
   }
 
+  uploadItemData() async {
+    final DocumentReference refDoc = await _uploadItemData(
+      widget.itemMap.previewMap,
+      tempData.previewData,
+      widget.data.previewData,
+      widget.itemDoc.previewDoc?.reference,
+      widget.rootCollRef,
+    );
+    await _uploadItemData(
+      widget.itemMap.pageMap,
+      tempData.pageData,
+      widget.data.pageData,
+      widget.itemDoc.pageDoc?.reference,
+      refDoc.collection('page'),
+      createDocName: 'doc',
+    );
+
+    await _syncImages(
+      widget.itemMap.previewMap,
+      tempData.previewData,
+      widget.data.previewData,
+      refDoc,
+    );
+    await _syncImages(
+      widget.itemMap.pageMap,
+      tempData.pageData,
+      widget.data.pageData,
+      refDoc,
+    );
+  }
+
+  Future<DocumentReference> _uploadItemData(
+    Map<String, ItemType> itemMapData,
+    Map<String, dynamic> tempItemData,
+    Map<String, dynamic> itemData,
+    DocumentReference docRef,
+    CollectionReference collRef, {
+    String createDocName,
+  }) async {
+    var copyTempData = Map.from(tempItemData);
+    for (var mEntry in itemMapData.entries) {
+      final mName = mEntry.key,
+          mType = mEntry.value,
+          mVal = tempItemData[mName];
+
+      switch (mType) {
+        case ItemType.IMAGE_SINGLE:
+          if (mVal is ImageProvider) {
+            copyTempData[mName] = true;
+          }
+          break;
+        case ItemType.IMAGES:
+          if (mVal is List) {
+            copyTempData[mName] = true;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    switch (widget.mode) {
+      case EditCreateMode.EDIT:
+        debugPrint('edit data: ' + copyTempData.toString());
+        await docRef.setData(Map.from(copyTempData), merge: true);
+
+        return docRef;
+
+        break;
+      case EditCreateMode.CREATE:
+        debugPrint('create data: ' + copyTempData.toString());
+        final Map<String, dynamic> createData = Map.from(copyTempData);
+        if (createDocName != null) {
+          await collRef.document(createDocName).setData(createData);
+          return collRef.document(createDocName);
+        } else {
+          return await collRef.add(createData);
+        }
+
+        break;
+      default:
+        throw Exception('mode is not set!!');
+    }
+  }
+
   @override
   Widget build(BuildContext ctx) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.collName != null
-            ? 'New item in ${widget.collName}'
-            : widget.ssDoc.data.containsKey('title')
-                ? widget.ssDoc.data['title']['en']
+        title: Text(widget.rootCollRef != null
+            ? 'New item in ${widget.rootCollRef.path}'
+            : widget.itemDoc.previewDoc.data.containsKey('title')
+                ? widget.itemDoc.previewDoc.data['title']['en']
                 : '...'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -222,49 +337,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               final pr = new ProgressDialog(context);
               pr.show();
 
-              var copyTempData = Map.from(tempData);
-              for (var mEntry in widget.listMap.entries) {
-                final mName = mEntry.key,
-                    mType = mEntry.value,
-                    mVal = tempData[mName];
-
-                switch (mType) {
-                  case ItemType.IMAGE_SINGLE:
-                    if (mVal is ImageProvider) {
-                      copyTempData[mName] = true;
-                    }
-                    break;
-                  case ItemType.IMAGES:
-                    if (mVal is List) {
-                      copyTempData[mName] = true;
-                    }
-                    break;
-                  default:
-                    break;
-                }
-              }
-
-              switch (widget.mode) {
-                case EditCreateMode.EDIT:
-                  debugPrint('edit data: ' + copyTempData.toString());
-                  await widget.ssDoc.reference
-                      .setData(Map.from(copyTempData), merge: true);
-
-                  await syncImages(widget.ssDoc.reference);
-
-                  break;
-                case EditCreateMode.CREATE:
-                  debugPrint('create data: ' + copyTempData.toString());
-                  final newSsDoc = await databaseReference
-                      .collection(widget.collName)
-                      .add(Map.from(copyTempData));
-
-                  await syncImages(newSsDoc);
-
-                  break;
-                default:
-                  throw Exception('mode is not set!!');
-              }
+              await uploadItemData();
 
               pr.hide();
 
