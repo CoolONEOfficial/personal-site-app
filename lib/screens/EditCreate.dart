@@ -67,6 +67,7 @@ class ScreenEditCreate extends StatefulWidget {
 
 enum ItemType {
   LOCALIZED_STRING,
+  LOCALIZED_MULTILINE_STRING,
   STRING,
   BOOL,
   DATE,
@@ -112,6 +113,18 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             startValue: data[mKey] != null
                 ? Map<String, dynamic>.from(data[mKey])
                 : null,
+          );
+          break;
+        case ItemType.LOCALIZED_MULTILINE_STRING:
+          item = LocalizedStringItem(
+            mKey,
+                (val) {
+              tempData[mKey] = val;
+            },
+            startValue: data[mKey] != null
+                ? Map<String, dynamic>.from(data[mKey])
+                : null,
+            inputType: TextInputType.multiline,
           );
           break;
         case ItemType.STRING:

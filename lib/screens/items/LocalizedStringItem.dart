@@ -4,8 +4,9 @@ class LocalizedStringItem extends StatefulWidget {
   final String name;
   final Map<String, dynamic> startValue;
   final Function(Map<String, dynamic>) onChanged;
+  final TextInputType inputType;
 
-  LocalizedStringItem(this.name, this.onChanged, {this.startValue});
+  LocalizedStringItem(this.name, this.onChanged, {this.startValue, this.inputType = TextInputType.text});
 
   @override
   _LocalizedStringItemState createState() =>
@@ -33,6 +34,8 @@ class _LocalizedStringItemState extends State<LocalizedStringItem> {
             width: 150,
             child: TextField(
               controller: textControllerRu,
+              keyboardType: widget.inputType,
+              maxLines: widget.inputType == TextInputType.multiline ? null : 1,
               decoration:
                   InputDecoration(hintText: 'Ru'),
               onChanged: (str) {

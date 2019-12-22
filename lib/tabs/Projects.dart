@@ -12,6 +12,7 @@ class Projects extends CallableWidget {
   static const ItemMap itemMap = const ItemMap({
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
+    'description': ItemType.LOCALIZED_MULTILINE_STRING,
     'logo': ItemType.IMAGE_SINGLE,
     'images': ItemType.IMAGES,
     'singleImage': ItemType.IMAGE_SINGLE,

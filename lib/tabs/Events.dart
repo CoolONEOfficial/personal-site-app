@@ -51,6 +51,7 @@ class Events extends CallableWidget {
     'type': ItemType.ENUM_EVENTS,
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
+    'description': ItemType.LOCALIZED_MULTILINE_STRING,
     'logo': ItemType.IMAGE_SINGLE,
     'images': ItemType.IMAGES,
     'singleImage': ItemType.IMAGE_SINGLE,
