@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:personal_site_app/main.dart';
 import 'package:personal_site_app/screens/items/BoolItem.dart';
 import 'package:personal_site_app/screens/items/DateItem.dart';
-import 'package:personal_site_app/screens/items/EnumItem.dart';
+import 'package:personal_site_app/screens/items/SelectItem.dart';
 import 'package:personal_site_app/screens/items/ImagesItem.dart';
 import 'package:personal_site_app/screens/items/LocalizedStringItem.dart';
 import 'package:personal_site_app/screens/items/ImageSingleItem.dart';
 import 'package:personal_site_app/screens/items/StringItem.dart';
+import 'package:personal_site_app/tabs/Achievements.dart';
 import 'package:personal_site_app/tabs/Events.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
@@ -74,7 +75,8 @@ enum ItemType {
   IMAGE_SINGLE,
   IMAGE_LOGO,
   IMAGES,
-  ENUM_EVENTS,
+  SELECT_EVENTS,
+  SELECT_ACHIEVEMENTS,
 }
 
 class _ScreenEditCreateState extends State<ScreenEditCreate> {
@@ -175,13 +177,23 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             docPath: ssDoc?.reference?.path,
           );
           break;
-        case ItemType.ENUM_EVENTS:
-          item = EnumItem(
+        case ItemType.SELECT_EVENTS:
+          item = SelectItem(
             mKey,
             (val) {
               tempData[mKey] = val;
             },
             eventsEnumMap,
+            startValue: data[mKey],
+          );
+          break;
+        case ItemType.SELECT_ACHIEVEMENTS:
+          item = SelectItem(
+            mKey,
+                (val) {
+              tempData[mKey] = val;
+            },
+            achievementsEnumMap,
             startValue: data[mKey],
           );
           break;

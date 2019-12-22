@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
-class EnumItem extends StatefulWidget {
+class SelectItem extends StatefulWidget {
   final String name;
-  final List<String> enumMap;
-  final int startValue;
-  final Function(int) onChanged;
+  final List<String> selectMap;
+  final String startValue;
+  final Function(String) onChanged;
 
-  EnumItem(this.name, this.onChanged, this.enumMap, {this.startValue});
+  SelectItem(this.name, this.onChanged, this.selectMap, {this.startValue});
 
   @override
-  _EnumItemState createState() => _EnumItemState(startValue);
+  _SelectItemState createState() => _SelectItemState(startValue);
 }
 
-class _EnumItemState extends State<EnumItem> {
-  _EnumItemState(value) {
+class _SelectItemState extends State<SelectItem> {
+  _SelectItemState(value) {
     dropdownModel = value;
   }
 
-  int dropdownModel;
+  String dropdownModel;
 
   @override
   Widget build(BuildContext ctx) {
@@ -25,7 +25,7 @@ class _EnumItemState extends State<EnumItem> {
       title: Text(widget.name),
       trailing: Container(
         width: 120,
-        child: DropdownButton<int>(
+        child: DropdownButton<String>(
           value: dropdownModel,
           icon: Icon(Icons.arrow_downward),
           iconSize: 24,
@@ -36,10 +36,10 @@ class _EnumItemState extends State<EnumItem> {
               dropdownModel = newValue;
             });
           },
-          items: widget.enumMap.asMap().entries.map((entry) {
-            return DropdownMenuItem<int>(
-              value: entry.key,
-              child: Text(entry.value),
+          items: widget.selectMap.map((entry) {
+            return DropdownMenuItem<String>(
+              value: entry,
+              child: Text(entry),
             );
           }).toList(),
         ),

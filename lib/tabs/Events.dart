@@ -8,47 +8,28 @@ import 'package:personal_site_app/screens/EditCreate.dart';
 import '../Item.dart';
 import '../main.dart';
 
-enum EventType {
-  OTHER,
-  HACKATHON,
-  MEETUP,
-  CONFERENCE,
-  WEBINAR,
-  LECTURE,
-  TRAINING,
-  MASTER_CLASS,
-  FORUM,
-  TOURNAMENT,
-  COMPETITION,
-  EXHIBITION,
-  FESTIVAL,
-  ROUND_TABLE,
-  STUDY,
-  EXCURSION
-}
-
 final List<String> eventsEnumMap = [
-  'Other',
-  'Hack',
-  'Meetup',
-  'Conference',
-  'Webinar',
-  'Lecture',
-  'Training',
-  'Master class',
-  'Forum',
-  'Tournament',
-  'Competition',
-  'Exhibition',
-  'Festival',
-  'Round table',
-  'Study',
-  'Excursion',
+  'other',
+  'hack',
+  'meetup',
+  'conference',
+  'webinar',
+  'lecture',
+  'training',
+  'master_class',
+  'forum',
+  'tournament',
+  'competition',
+  'exhibition',
+  'festival',
+  'round_table',
+  'study',
+  'excursion',
 ];
 
 class Events extends CallableWidget {
   static const ItemMap itemMap = const ItemMap({
-    'type': ItemType.ENUM_EVENTS,
+    'type': ItemType.SELECT_EVENTS,
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
     'description': ItemType.LOCALIZED_MULTILINE_STRING,
@@ -57,6 +38,7 @@ class Events extends CallableWidget {
     'singleImage': ItemType.IMAGE_SINGLE,
     'organisation': ItemType.STRING,
   }, {
+    'description': ItemType.LOCALIZED_MULTILINE_STRING,
     'youtube': ItemType.STRING,
     'site': ItemType.STRING
   });

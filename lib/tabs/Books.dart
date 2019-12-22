@@ -17,6 +17,7 @@ class Books extends CallableWidget {
     'organisation': ItemType.STRING,
     'author': ItemType.STRING,
   }, {
+    'description': ItemType.LOCALIZED_MULTILINE_STRING,
     'site': ItemType.STRING
   });
 
