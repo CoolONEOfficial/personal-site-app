@@ -1,23 +1,36 @@
 import 'package:flutter/material.dart';
 
+class LocalizedString {
+  final String ru, en;
+
+  const LocalizedString([this.ru = '', this.en = '']);
+
+  static fromMap(Map map) => LocalizedString(map['ru'], map['en']);
+
+  Map<String, dynamic> toMap() => {'ru': ru, 'en': en};
+}
+
 class LocalizedStringItem extends StatefulWidget {
   final String name;
   final Map<String, dynamic> startValue;
   final Function(Map<String, dynamic>) onChanged;
   final TextInputType inputType;
 
-  LocalizedStringItem(this.name, this.onChanged, {this.startValue, this.inputType = TextInputType.text});
+  LocalizedStringItem(this.name, this.onChanged,
+      {this.startValue, this.inputType = TextInputType.text});
 
   @override
   _LocalizedStringItemState createState() =>
-      _LocalizedStringItemState(startValue ?? const {"en": "", "ru": ""});
+      _LocalizedStringItemState(startValue != null
+          ? LocalizedString.fromMap(startValue)
+          : const LocalizedString());
 }
 
 class _LocalizedStringItemState extends State<LocalizedStringItem> {
-  _LocalizedStringItemState(value) {
-    debugPrint('value: ' + value.toString());
-    textControllerRu.text = value["ru"];
-    textControllerEn.text = value["en"];
+  _LocalizedStringItemState(LocalizedString value) {
+    debugPrint('value: ' + value.toMap().toString());
+    textControllerRu.text = value.ru;
+    textControllerEn.text = value.en;
   }
 
   TextEditingController textControllerRu = TextEditingController(),
@@ -36,10 +49,10 @@ class _LocalizedStringItemState extends State<LocalizedStringItem> {
               controller: textControllerRu,
               keyboardType: widget.inputType,
               maxLines: widget.inputType == TextInputType.multiline ? null : 1,
-              decoration:
-                  InputDecoration(hintText: 'Ru'),
+              decoration: InputDecoration(hintText: 'Ru'),
               onChanged: (str) {
-                widget.onChanged({"ru": str, "en": textControllerEn.text});
+                widget.onChanged(
+                    LocalizedString(str, textControllerEn.text).toMap());
               },
             ),
           ),
@@ -47,10 +60,12 @@ class _LocalizedStringItemState extends State<LocalizedStringItem> {
             width: 150,
             child: TextField(
               controller: textControllerEn,
-              decoration:
-                  InputDecoration(hintText: 'En'),
+              keyboardType: widget.inputType,
+              maxLines: widget.inputType == TextInputType.multiline ? null : 1,
+              decoration: InputDecoration(hintText: 'En'),
               onChanged: (str) {
-                widget.onChanged({"ru": textControllerRu.text, "en": str});
+                widget.onChanged(
+                    LocalizedString(textControllerRu.text, str).toMap());
               },
             ),
           ),

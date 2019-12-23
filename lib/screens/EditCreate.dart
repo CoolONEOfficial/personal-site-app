@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:personal_site_app/main.dart';
 import 'package:personal_site_app/screens/items/BoolItem.dart';
 import 'package:personal_site_app/screens/items/DateItem.dart';
+import 'package:personal_site_app/screens/items/LocationItem.dart';
 import 'package:personal_site_app/screens/items/SelectItem.dart';
 import 'package:personal_site_app/screens/items/ImagesItem.dart';
 import 'package:personal_site_app/screens/items/LocalizedStringItem.dart';
@@ -72,6 +73,7 @@ enum ItemType {
   STRING,
   BOOL,
   DATE,
+  LOCATION,
   IMAGE_SINGLE,
   IMAGE_LOGO,
   IMAGES,
@@ -120,7 +122,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.LOCALIZED_MULTILINE_STRING:
           item = LocalizedStringItem(
             mKey,
-                (val) {
+            (val) {
               tempData[mKey] = val;
             },
             startValue: data[mKey] != null
@@ -157,6 +159,18 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             startValue: data[mKey]?.toDate(),
           );
           break;
+        case ItemType.LOCATION:
+          item = LocationItem(
+            mKey,
+            (val) {
+              debugPrint('new location: $val');
+              tempData[mKey] = val;
+            },
+            startValue: data[mKey] != null
+                ? Map<String, dynamic>.from(data[mKey])
+                : null,
+          );
+          break;
         case ItemType.IMAGE_SINGLE:
           item = ImageSingleItem(mKey, (val) {
             tempData[mKey] = val;
@@ -190,7 +204,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.SELECT_ACHIEVEMENTS:
           item = SelectItem(
             mKey,
-                (val) {
+            (val) {
               tempData[mKey] = val;
             },
             achievementsEnumMap,
@@ -363,6 +377,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               pr.show();
 
               await uploadItemData();
+              await Future.delayed(const Duration(seconds: 2));
 
               pr.hide();
 

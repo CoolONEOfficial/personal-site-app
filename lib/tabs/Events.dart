@@ -37,6 +37,7 @@ class Events extends CallableWidget {
     'images': ItemType.IMAGES,
     'singleImage': ItemType.IMAGE_SINGLE,
     'organisation': ItemType.STRING,
+    'location': ItemType.LOCATION,
   }, {
     'description': ItemType.LOCALIZED_MULTILINE_STRING,
     'youtube': ItemType.STRING,
