@@ -16,6 +16,7 @@ class Books extends CallableWidget {
     'singleImage': ItemType.IMAGE_SINGLE,
     'organisation': ItemType.STRING,
     'author': ItemType.STRING,
+    'tags': ItemType.TAGS,
   }, {
     'description': ItemType.LOCALIZED_MULTILINE_STRING,
     'site': ItemType.STRING

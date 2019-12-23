@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:personal_site_app/main.dart';
 import 'package:personal_site_app/screens/items/BoolItem.dart';
 import 'package:personal_site_app/screens/items/DateItem.dart';
+import 'package:personal_site_app/screens/items/ListStringItem.dart';
 import 'package:personal_site_app/screens/items/LocationItem.dart';
 import 'package:personal_site_app/screens/items/SelectItem.dart';
 import 'package:personal_site_app/screens/items/ImagesItem.dart';
 import 'package:personal_site_app/screens/items/LocalizedStringItem.dart';
 import 'package:personal_site_app/screens/items/ImageSingleItem.dart';
 import 'package:personal_site_app/screens/items/StringItem.dart';
+import 'package:personal_site_app/screens/items/TagsItem.dart';
 import 'package:personal_site_app/tabs/Achievements.dart';
 import 'package:personal_site_app/tabs/Events.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -71,6 +73,7 @@ enum ItemType {
   LOCALIZED_STRING,
   LOCALIZED_MULTILINE_STRING,
   STRING,
+  LIST_STRING,
   BOOL,
   DATE,
   LOCATION,
@@ -79,6 +82,7 @@ enum ItemType {
   IMAGES,
   SELECT_EVENTS,
   SELECT_ACHIEVEMENTS,
+  TAGS
 }
 
 class _ScreenEditCreateState extends State<ScreenEditCreate> {
@@ -139,6 +143,15 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               tempData[mKey] = val;
             },
             startValue: data[mKey],
+          );
+          break;
+        case ItemType.LIST_STRING:
+          item = ListStringItem(
+            mKey,
+            (val) {
+              tempData[mKey] = val;
+            },
+            startValue: List<String>.from(data[mKey]),
           );
           break;
         case ItemType.BOOL:
@@ -209,6 +222,15 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             },
             achievementsEnumMap,
             startValue: data[mKey],
+          );
+          break;
+        case ItemType.TAGS:
+          item = TagsItem(
+            mKey,
+            (val) {
+              tempData[mKey] = val;
+            },
+            startValue: List<String>.from(data[mKey])
           );
           break;
       }

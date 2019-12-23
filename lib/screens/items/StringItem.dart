@@ -5,8 +5,6 @@ class StringItem extends StatefulWidget {
   final String startValue;
   final Function(String) onChanged;
 
-  final TextEditingController textController = TextEditingController();
-
   StringItem(this.name, this.onChanged, {this.startValue});
 
   @override
@@ -15,8 +13,10 @@ class StringItem extends StatefulWidget {
 
 class _StringItemState extends State<StringItem> {
   _StringItemState(value) {
-    if (value is String) widget.textController.text = value;
+    if (value is String) this.textController.text = value;
   }
+
+  final TextEditingController textController = TextEditingController();
 
   @override
   Widget build(BuildContext ctx) {
@@ -25,7 +25,7 @@ class _StringItemState extends State<StringItem> {
       trailing: Container(
           width: 150,
           child: TextField(
-            controller: widget.textController,
+            controller: this.textController,
             onChanged: (str) {
               if (str.length > 0) widget.onChanged(str);
             },

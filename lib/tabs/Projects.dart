@@ -17,6 +17,7 @@ class Projects extends CallableWidget {
     'images': ItemType.IMAGES,
     'singleImage': ItemType.IMAGE_SINGLE,
     'organisation': ItemType.STRING,
+    'tags': ItemType.TAGS,
   }, {
     'description': ItemType.LOCALIZED_MULTILINE_STRING,
     'youtube': ItemType.STRING,
