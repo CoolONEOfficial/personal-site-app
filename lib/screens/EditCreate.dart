@@ -157,7 +157,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             (val) {
               tempData[mKey] = val;
             },
-            startValue: List<String>.from(data[mKey]),
+            startValue: data[mKey] != null ? List<String>.from(data[mKey]) : null,
           );
           break;
         case ItemType.BOOL:
