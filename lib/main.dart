@@ -3,11 +3,17 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:personal_site_app/screens/Auth.dart';
 import 'package:personal_site_app/screens/Control.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart'
+    show debugDefaultTargetPlatformOverride;
 
 final databaseReference = Firestore.instance;
 final storageReference = FirebaseStorage.instance.ref();
 
-void main() => runApp(MyApp());
+void main() {
+  debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+  runApp(MyApp());
+}
 
 class MyApp extends StatefulWidget {
   @override

@@ -127,9 +127,15 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
           item = LocalizedStringItem(
             mKey,
             (val) {
-              tempData[mKey] = val;
+              debugPrint('neval: $val');
+              final writeVal = {
+                'ru': (val['ru'] as String).replaceAll('\n', '\\n'),
+                'en': (val['en'] as String).replaceAll('\n', '\\n')
+              };
+              debugPrint('wr val: $writeVal');
+              tempData[mKey] = writeVal;
             },
-            startValue: data[mKey] != null
+            startValue: data != null && data[mKey] != null
                 ? Map<String, dynamic>.from(data[mKey])
                 : null,
             inputType: TextInputType.multiline,
@@ -142,7 +148,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               debugPrint('write string "$val" on key "$mKey"');
               tempData[mKey] = val;
             },
-            startValue: data[mKey],
+            startValue: data != null ? data[mKey] : null,
           );
           break;
         case ItemType.LIST_STRING:
@@ -225,13 +231,11 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
           );
           break;
         case ItemType.TAGS:
-          item = TagsItem(
-            mKey,
-            (val) {
-              tempData[mKey] = val;
-            },
-            startValue: List<String>.from(data[mKey])
-          );
+          item = TagsItem(mKey, (val) {
+            tempData[mKey] = val;
+          },
+              startValue:
+                  data[mKey] != null ? List<String>.from(data[mKey]) : []);
           break;
       }
       list.add(item);
@@ -244,8 +248,6 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
     Map<String, dynamic> itemData,
     DocumentReference refDoc,
   ) async {
-//    debugPrint('start sync.. ssDoc: ${ssDoc.toString()}');
-
     for (var mEntry in itemMapData.entries) {
       final mName = mEntry.key,
           mType = mEntry.value,
