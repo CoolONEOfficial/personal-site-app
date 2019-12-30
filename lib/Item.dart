@@ -56,28 +56,34 @@ class _ItemState extends State<Item> {
 
   @override
   Widget build(BuildContext ctx) {
+    final data = widget.itemDoc.previewDoc.data;
+    var imageFolder;
+    if (data.containsKey('logo'))
+      imageFolder = 'logo/1';
+    else if (data.containsKey('images'))
+      imageFolder = 'images/1';
+    else if (data.containsKey('singleImage')) imageFolder = 'singleImage/1';
+
+    final imgPath = '${widget.itemDoc.previewDoc.reference.path}/${imageFolder}_400x400.jpg';
+
+    debugPrint('imgpath: $imgPath');
+
     return ListTile(
-      leading: widget.itemDoc.previewDoc.data.containsKey('singleImage') ||
-              widget.itemDoc.previewDoc.data.containsKey('images')
+      leading: imageFolder != null
           ? buildFutureBuilder(
               storageReference
                   .child(
-                    '${widget.itemDoc.previewDoc.reference.path}/${widget.itemDoc.previewDoc.data.containsKey(
-                      'singleImage',
-                    ) ? 'singleImage' : 'images'}/1_400x400.jpg',
+                    imgPath
                   )
                   .getDownloadURL(),
               (url) => Image.network(url),
               fixedWidth: 100,
             )
           : null,
-      title: Text(widget.itemDoc.previewDoc.data.containsKey('title')
-          ? widget.itemDoc.previewDoc.data['title']['en'].toString()
-          : '...'),
-      subtitle: Text(widget.itemDoc.previewDoc.data.containsKey('date')
-          ? (widget.itemDoc.previewDoc.data['date'] as Timestamp)
-              .toDate()
-              .toIso8601String()
+      title: Text(
+          data.containsKey('title') ? data['title']['en'].toString() : '...'),
+      subtitle: Text(data.containsKey('date')
+          ? (data['date'] as Timestamp).toDate().toIso8601String()
           : '...'),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

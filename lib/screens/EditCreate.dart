@@ -13,6 +13,7 @@ import 'package:personal_site_app/screens/items/StringItem.dart';
 import 'package:personal_site_app/screens/items/TagsItem.dart';
 import 'package:personal_site_app/tabs/Achievements.dart';
 import 'package:personal_site_app/tabs/Events.dart';
+import 'package:personal_site_app/tabs/Projects.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
 class ScreenEditCreateArgs {}
@@ -73,6 +74,7 @@ enum ItemType {
   LOCALIZED_STRING,
   LOCALIZED_MULTILINE_STRING,
   STRING,
+  NUMBER,
   LIST_STRING,
   BOOL,
   DATE,
@@ -82,6 +84,8 @@ enum ItemType {
   IMAGES,
   SELECT_EVENTS,
   SELECT_ACHIEVEMENTS,
+  SELECT_PROJECT_TYPE,
+  SELECT_PLATFORMS,
   TAGS
 }
 
@@ -151,13 +155,25 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             startValue: data != null ? data[mKey] : null,
           );
           break;
+        case ItemType.NUMBER:
+          item = StringItem(
+            mKey,
+                (val) {
+              debugPrint('write string "$val" on key "$mKey"');
+              tempData[mKey] = int.parse(val);
+            },
+            startValue: data != null && data[mKey] != null ? data[mKey].toString() : null,
+            keyboardType: TextInputType.number
+          );
+          break;
         case ItemType.LIST_STRING:
           item = ListStringItem(
             mKey,
             (val) {
               tempData[mKey] = val;
             },
-            startValue: data[mKey] != null ? List<String>.from(data[mKey]) : null,
+            startValue:
+                data[mKey] != null ? List<String>.from(data[mKey]) : null,
           );
           break;
         case ItemType.BOOL:
@@ -230,6 +246,26 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             startValue: data[mKey],
           );
           break;
+        case ItemType.SELECT_PLATFORMS:
+          item = SelectItem(
+            mKey,
+            (val) {
+              tempData[mKey] = val;
+            },
+            platformsEnumMap,
+            startValue: data[mKey],
+          );
+          break;
+        case ItemType.SELECT_PROJECT_TYPE:
+          item = SelectItem(
+            mKey,
+            (val) {
+              tempData[mKey] = val;
+            },
+            projectsEnumMap,
+            startValue: data[mKey],
+          );
+          break;
         case ItemType.TAGS:
           item = TagsItem(mKey, (val) {
             tempData[mKey] = val;
@@ -252,7 +288,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
       final mName = mEntry.key,
           mType = mEntry.value,
           mVal = tempItemData[mName],
-          mOrigVal = itemData[mName];
+          mOrigVal = itemData != null ? itemData[mName] : null;
 
       if (mVal != null) {
         switch (mType) {

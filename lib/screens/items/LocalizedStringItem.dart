@@ -61,32 +61,48 @@ class _LocalizedStringItemState extends State<LocalizedStringItem> {
           IconButton(
             icon: Icon(Icons.translate),
             onPressed: () {
-              showDialog(context: ctx, builder: (ctx) => SimpleDialog(
-                title: Text('Translate direction'),
-                children: <Widget>[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      FlatButton(
-                        child: Text('Ru -> En'),
-                        onPressed: () async {
-                          textControllerEn.text = await widget.translator.translate(textControllerRu.text, from: 'ru', to: 'en');
-                          Navigator.of(ctx).pop();
-                        },
-                      ),
-                      FlatButton(
-                        child: Text('Ru <- En'),
-                        onPressed: () async {
-                          textControllerRu.text = await widget.translator.translate(textControllerEn.text, from: 'en', to: 'ru');
-                          Navigator.of(ctx).pop();
-                        },
-                      ),
-                    ],
-                  )
-                ],
-              ));
+              showDialog(
+                  context: ctx,
+                  builder: (ctx) => SimpleDialog(
+                        title: Text('Translate direction'),
+                        children: <Widget>[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: <Widget>[
+                              FlatButton(
+                                child: Text('Ru -> En'),
+                                onPressed: () async {
+                                  textControllerEn.text = await widget
+                                      .translator
+                                      .translate(textControllerRu.text,
+                                          from: 'ru', to: 'en');
+                                  widget.onChanged(LocalizedString(
+                                          textControllerRu.text,
+                                          textControllerEn.text)
+                                      .toMap());
+                                  Navigator.of(ctx).pop();
+                                },
+                              ),
+                              FlatButton(
+                                child: Text('Ru <- En'),
+                                onPressed: () async {
+                                  textControllerRu.text = await widget
+                                      .translator
+                                      .translate(textControllerEn.text,
+                                          from: 'en', to: 'ru');
+                                  widget.onChanged(LocalizedString(
+                                          textControllerRu.text,
+                                          textControllerEn.text)
+                                      .toMap());
+                                  Navigator.of(ctx).pop();
+                                },
+                              ),
+                            ],
+                          )
+                        ],
+                      ));
             },
           ),
           Container(

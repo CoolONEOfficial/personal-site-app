@@ -39,6 +39,7 @@ class Events extends CallableWidget {
     'organisation': ItemType.STRING,
     'location': ItemType.LOCATION,
     'tags': ItemType.TAGS,
+    'place': ItemType.NUMBER
   }, {
     'description': ItemType.LOCALIZED_MULTILINE_STRING,
     'videos': ItemType.LIST_STRING,

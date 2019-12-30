@@ -8,8 +8,26 @@ import 'package:personal_site_app/screens/EditCreate.dart';
 import '../Item.dart';
 import '../main.dart';
 
+final List<String> platformsEnumMap = [
+  'web',
+  'desktop',
+  'mobile',
+  'ios',
+  'android',
+  'windows',
+  'linux',
+  'macosx'
+];
+
+final List<String> projectsEnumMap = [
+  'app',
+  'game'
+];
+
 class Projects extends CallableWidget {
   static const ItemMap itemMap = const ItemMap({
+    'platform': ItemType.SELECT_PROJECT_TYPE,
+    'type': ItemType.SELECT_PLATFORMS,
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
     'description': ItemType.LOCALIZED_MULTILINE_STRING,
