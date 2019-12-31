@@ -14,7 +14,7 @@ class StringItem extends StatefulWidget {
 
 class _StringItemState extends State<StringItem> {
   _StringItemState(value) {
-    if (value is String) this.textController.text = value;
+    if (value is String) this.textController.text = value ?? '';
   }
 
   final TextEditingController textController = TextEditingController();

@@ -40,38 +40,43 @@ class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
 
   @override
   Widget build(BuildContext ctx) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(children: <Widget>[
-        Text(
-          widget.name,
-          textScaleFactor: 1.1,
-        ),
-        IconButton(
-            icon: Icon(Icons.text_fields),
-            onPressed: () async {
-              final res = (await Navigator.pushNamed(
-                ctx,
-                ScreenZefyr.route,
-                arguments: mdRu
-              ));
-              mdRu = res;
-              mdEn =
-                  await widget.translator.translate(mdRu, from: 'ru', to: 'en');
-              widget.onChanged(LocalizedString(mdRu, mdEn).toMap());
-            }),
-        IconButton(
-            icon: Icon(Icons.translate),
-            onPressed: () async {
-              final res = (await Navigator.pushNamed(
-                ctx,
-                ScreenZefyr.route,
-                arguments: mdEn,
-              ));
-              mdEn = res;
-              widget.onChanged(LocalizedString(mdRu, mdEn).toMap());
-            }),
-      ]),
+    return ListTile(
+      title: Text(widget.name),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            child: SelectableText(mdRu ?? ''),
+            width: 100,
+          ),
+          Container(
+            child: SelectableText(mdEn ?? ''),
+            width: 100,
+          ),
+          IconButton(
+              icon: Icon(Icons.text_fields),
+              onPressed: () async {
+                final res = (await Navigator.pushNamed(ctx, ScreenZefyr.route,
+                    arguments: mdRu));
+                mdRu = res;
+                mdEn = await widget.translator
+                    .translate(mdRu, from: 'ru', to: 'en');
+                setState(() {});
+                widget.onChanged(LocalizedString(mdRu, mdEn).toMap());
+              }),
+          IconButton(
+              icon: Icon(Icons.translate),
+              onPressed: () async {
+                final res = (await Navigator.pushNamed(
+                  ctx,
+                  ScreenZefyr.route,
+                  arguments: mdEn,
+                ));
+                mdEn = res;
+                widget.onChanged(LocalizedString(mdRu, mdEn).toMap());
+              })
+        ],
+      ),
     );
   }
 }

@@ -65,7 +65,7 @@ class ScreenZefyrState extends State<ScreenZefyr> {
     // saying "Zefyr Quick Start".
     // (Note that delta must always end with newline.)
     debugPrint('startData: ${widget.startMd}');
-    final Delta delta = Delta()..insert('${widget.startMd}\n');
+    final Delta delta = Delta()..insert('${widget.startMd ?? ''}\n');
     return NotusDocument.fromDelta(delta);
   }
 }

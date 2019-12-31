@@ -113,8 +113,12 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         itemDoc.pageDoc);
   }
 
-  _initList(Map<String, dynamic> map, Map<String, dynamic> data,
-      Map<String, dynamic> tempData, DocumentSnapshot ssDoc) {
+  _initList(
+    Map<String, dynamic> map,
+    Map<String, dynamic> data,
+    Map<String, dynamic> tempData,
+    DocumentSnapshot ssDoc,
+  ) {
     map.forEach((mKey, mVal) {
       var item;
       switch (mVal) {
@@ -132,7 +136,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.LOCALIZED_MARKDOWN_STRING:
           item = LocalizedMarkdownItem(
             mKey,
-                (val) {
+            (val) {
               final writeVal = {
                 'ru': (val['ru'] as String).replaceAll('\n', '\\n'),
                 'en': (val['en'] as String).replaceAll('\n', '\\n')
@@ -170,15 +174,14 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
           );
           break;
         case ItemType.NUMBER:
-          item = StringItem(
-            mKey,
-                (val) {
-              debugPrint('write string "$val" on key "$mKey"');
-              tempData[mKey] = int.parse(val);
-            },
-            startValue: data != null && data[mKey] != null ? data[mKey].toString() : null,
-            keyboardType: TextInputType.number
-          );
+          item = StringItem(mKey, (val) {
+            debugPrint('write string "$val" on key "$mKey"');
+            tempData[mKey] = int.parse(val);
+          },
+              startValue: data != null && data[mKey] != null
+                  ? data[mKey].toString()
+                  : null,
+              keyboardType: TextInputType.number);
           break;
         case ItemType.LIST_STRING:
           item = ListStringItem(
