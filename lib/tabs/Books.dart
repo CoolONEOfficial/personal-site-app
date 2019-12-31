@@ -12,13 +12,13 @@ class Books extends CallableWidget {
   static const ItemMap itemMap = const ItemMap({
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
-    'description': ItemType.LOCALIZED_MULTILINE_STRING,
+    'description': ItemType.LOCALIZED_MARKDOWN_STRING,
     'singleImage': ItemType.IMAGE_SINGLE,
     'organisation': ItemType.STRING,
     'author': ItemType.STRING,
     'tags': ItemType.TAGS,
   }, {
-    'description': ItemType.LOCALIZED_MULTILINE_STRING,
+    'description': ItemType.LOCALIZED_MARKDOWN_STRING,
     'site': ItemType.STRING
   });
 

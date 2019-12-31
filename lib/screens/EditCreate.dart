@@ -4,6 +4,7 @@ import 'package:personal_site_app/main.dart';
 import 'package:personal_site_app/screens/items/BoolItem.dart';
 import 'package:personal_site_app/screens/items/DateItem.dart';
 import 'package:personal_site_app/screens/items/ListStringItem.dart';
+import 'package:personal_site_app/screens/items/LocalizedMarkdownItem.dart';
 import 'package:personal_site_app/screens/items/LocationItem.dart';
 import 'package:personal_site_app/screens/items/SelectItem.dart';
 import 'package:personal_site_app/screens/items/ImagesItem.dart';
@@ -72,6 +73,7 @@ class ScreenEditCreate extends StatefulWidget {
 
 enum ItemType {
   LOCALIZED_STRING,
+  LOCALIZED_MARKDOWN_STRING,
   LOCALIZED_MULTILINE_STRING,
   STRING,
   NUMBER,
@@ -127,17 +129,29 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
                 : null,
           );
           break;
-        case ItemType.LOCALIZED_MULTILINE_STRING:
-          item = LocalizedStringItem(
+        case ItemType.LOCALIZED_MARKDOWN_STRING:
+          item = LocalizedMarkdownItem(
             mKey,
-            (val) {
-              debugPrint('neval: $val');
+                (val) {
               final writeVal = {
                 'ru': (val['ru'] as String).replaceAll('\n', '\\n'),
                 'en': (val['en'] as String).replaceAll('\n', '\\n')
               };
-              debugPrint('wr val: $writeVal');
+              debugPrint('write val: $writeVal');
               tempData[mKey] = writeVal;
+            },
+            startValue: data != null && data[mKey] != null
+                ? Map<String, dynamic>.from(data[mKey])
+                : null,
+            inputType: TextInputType.multiline,
+          );
+          break;
+        case ItemType.LOCALIZED_MULTILINE_STRING:
+          item = LocalizedStringItem(
+            mKey,
+            (val) {
+              debugPrint('wr val: $val');
+              tempData[mKey] = val;
             },
             startValue: data != null && data[mKey] != null
                 ? Map<String, dynamic>.from(data[mKey])

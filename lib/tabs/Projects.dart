@@ -30,15 +30,14 @@ class Projects extends CallableWidget {
     'type': ItemType.SELECT_PLATFORMS,
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
-    'description': ItemType.LOCALIZED_MULTILINE_STRING,
+    'description': ItemType.LOCALIZED_MARKDOWN_STRING,
     'logo': ItemType.IMAGE_SINGLE,
     'images': ItemType.IMAGES,
     'singleImage': ItemType.IMAGE_SINGLE,
     'organisation': ItemType.STRING,
     'tags': ItemType.TAGS,
   }, {
-    'description': ItemType.LOCALIZED_MULTILINE_STRING,
-    'youtube': ItemType.STRING,
+    'description': ItemType.LOCALIZED_MARKDOWN_STRING,
     'github': ItemType.STRING,
     'site': ItemType.STRING
   });
