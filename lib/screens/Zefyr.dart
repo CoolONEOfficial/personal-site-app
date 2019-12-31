@@ -1,14 +1,29 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:zefyr/zefyr.dart';
 import 'package:notus/convert.dart';
 
+class ScreenZefyrArgs {
+  final String startMd;
+  final String saveJsonName;
+  final String fromJsonName;
+
+  ScreenZefyrArgs(
+    this.startMd, {
+    this.saveJsonName,
+    this.fromJsonName,
+  });
+}
+
 class ScreenZefyr extends StatefulWidget {
   static const route = '/screens/zefyr';
 
-  final String startMd;
+  final ScreenZefyrArgs args;
 
-  const ScreenZefyr(this.startMd, {Key key}) : super(key: key);
+  const ScreenZefyr(this.args, {Key key}) : super(key: key);
 
   @override
   ScreenZefyrState createState() => ScreenZefyrState();
@@ -25,9 +40,19 @@ class ScreenZefyrState extends State<ScreenZefyr> {
   void initState() {
     super.initState();
     // Here we must load the document and pass it to Zefyr controller.
-    final document = _loadDocument();
-    _controller = ZefyrController(document);
     _focusNode = FocusNode();
+    _loadDocument().then((document) {
+      setState(() {
+        _controller = ZefyrController(document);
+      });
+    });
+  }
+
+  /// Trims start and end whitespace
+  String trim(String str) {
+    return str
+        .replaceFirst(new RegExp(r"^\s+"), "")
+        .replaceFirst(new RegExp(r"\s+$"), "");
   }
 
   @override
@@ -42,30 +67,57 @@ class ScreenZefyrState extends State<ScreenZefyr> {
           Builder(
             builder: (context) => IconButton(
               icon: Icon(Icons.save),
-              onPressed: () => Navigator.pop(context,
-                  notusMarkdown.encode(_controller.document.toDelta())),
+              onPressed: () async {
+                await _saveDocument(context);
+                return Navigator.pop(
+                  context,
+                  trim(notusMarkdown.encode(_controller.document.toDelta())),
+                );
+              },
             ),
           )
         ],
         // end change >>>
       ),
-      body: ZefyrScaffold(
-        child: ZefyrEditor(
-          padding: EdgeInsets.all(16),
-          controller: _controller,
-          focusNode: _focusNode,
-        ),
-      ),
+      body: (_controller == null)
+          ? Center(child: CircularProgressIndicator())
+          : ZefyrScaffold(
+              child: ZefyrEditor(
+                padding: EdgeInsets.all(16),
+                controller: _controller,
+                focusNode: _focusNode,
+              ),
+            ),
     );
   }
 
   /// Loads the document to be edited in Zefyr.
-  NotusDocument _loadDocument() {
+  Future<NotusDocument> _loadDocument() async {
+    if ((widget.args.startMd == null || widget.args.startMd.isEmpty) &&
+        widget.args.fromJsonName != null) {
+      final file =
+          File(Directory.systemTemp.path + "/${widget.args.fromJsonName}.json");
+      if (await file.exists()) {
+        final contents = await file.readAsString();
+        return NotusDocument.fromJson(jsonDecode(contents));
+      }
+    }
     // For simplicity we hardcode a simple document with one line of text
     // saying "Zefyr Quick Start".
     // (Note that delta must always end with newline.)
-    debugPrint('startData: ${widget.startMd}');
-    final Delta delta = Delta()..insert('${widget.startMd ?? ''}\n');
+    debugPrint('startData: ${widget.args.startMd}');
+    final Delta delta = Delta()..insert('${widget.args.startMd ?? ''}\n');
     return NotusDocument.fromDelta(delta);
+  }
+
+  _saveDocument(BuildContext context) {
+    // Notus documents can be easily serialized to JSON by passing to
+    // `jsonEncode` directly
+    final contents = jsonEncode(_controller.document);
+    // For this example we save our document to a temporary file.
+    final file =
+        File(Directory.systemTemp.path + "/${widget.args.saveJsonName}.json");
+    // And show a snack bar on success.
+    return file.writeAsString(contents);
   }
 }

@@ -26,8 +26,8 @@ final List<String> projectsEnumMap = [
 
 class Projects extends CallableWidget {
   static const ItemMap itemMap = const ItemMap({
-    'platform': ItemType.SELECT_PROJECT_TYPE,
-    'type': ItemType.SELECT_PLATFORMS,
+    'type': ItemType.SELECT_PROJECT_TYPE,
+    'platform': ItemType.SELECT_PLATFORMS,
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
     'description': ItemType.LOCALIZED_MARKDOWN_STRING,

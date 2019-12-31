@@ -18,9 +18,16 @@ class LocalizedMarkdownItem extends StatefulWidget {
   final Function(Map<String, dynamic>) onChanged;
   final TextInputType inputType;
   final translator = new GoogleTranslator();
+  final bool saveJson, readJson;
 
-  LocalizedMarkdownItem(this.name, this.onChanged,
-      {this.startValue, this.inputType = TextInputType.text});
+  LocalizedMarkdownItem(
+    this.name,
+    this.onChanged, {
+    this.startValue,
+    this.inputType = TextInputType.text,
+    this.saveJson,
+    this.readJson,
+  });
 
   @override
   _LocalizedMarkdownItemState createState() =>
@@ -40,6 +47,7 @@ class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
 
   @override
   Widget build(BuildContext ctx) {
+    final docRu = '${widget.name}_ru', docEn = '${widget.name}_en';
     return ListTile(
       title: Text(widget.name),
       trailing: Row(
@@ -57,12 +65,16 @@ class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
               icon: Icon(Icons.text_fields),
               onPressed: () async {
                 final res = (await Navigator.pushNamed(ctx, ScreenZefyr.route,
-                    arguments: mdRu));
-                mdRu = res;
-                mdEn = await widget.translator
-                    .translate(mdRu, from: 'ru', to: 'en');
-                setState(() {});
-                widget.onChanged(LocalizedString(mdRu, mdEn).toMap());
+                    arguments: ScreenZefyrArgs(mdRu,
+                        saveJsonName: widget.saveJson ? docRu : null,
+                        fromJsonName: widget.readJson ? docRu : null)));
+                if (res != null) {
+                  mdRu = res;
+                  mdEn = await widget.translator
+                      .translate(mdRu, from: 'ru', to: 'en');
+                  setState(() {});
+                  widget.onChanged(LocalizedString(mdRu, mdEn).toMap());
+                }
               }),
           IconButton(
               icon: Icon(Icons.translate),
@@ -70,10 +82,14 @@ class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
                 final res = (await Navigator.pushNamed(
                   ctx,
                   ScreenZefyr.route,
-                  arguments: mdEn,
+                  arguments: ScreenZefyrArgs(mdEn,
+                      saveJsonName: widget.saveJson ? docEn : null,
+                      fromJsonName: widget.readJson ? docEn : null),
                 ));
-                mdEn = res;
-                widget.onChanged(LocalizedString(mdRu, mdEn).toMap());
+                if (res != null) {
+                  mdEn = res;
+                  widget.onChanged(LocalizedString(mdRu, mdEn).toMap());
+                }
               })
         ],
       ),
