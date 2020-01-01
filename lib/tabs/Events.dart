@@ -25,6 +25,7 @@ final List<String> eventsEnumMap = [
   'round_table',
   'study',
   'excursion',
+  'course'
 ];
 
 class Events extends CallableWidget {
