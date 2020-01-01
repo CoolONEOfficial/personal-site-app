@@ -14,7 +14,7 @@
 
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="personal_site_app"
+        android:label="Personal site admin app"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCijF4pgTurfxRQ1AZ-dzWa53UuQpCCsG4"/>
