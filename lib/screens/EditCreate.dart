@@ -76,6 +76,7 @@ enum ItemType {
   LOCALIZED_MARKDOWN_STRING,
   LOCALIZED_MULTILINE_STRING,
   STRING,
+  URL,
   NUMBER,
   LIST_STRING,
   BOOL,
@@ -175,6 +176,17 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               tempData[mKey] = val;
             },
             startValue: data != null ? data[mKey] : null,
+          );
+          break;
+        case ItemType.STRING:
+          item = StringItem(
+            mKey,
+                (val) {
+              debugPrint('write string "$val" on key "$mKey"');
+              tempData[mKey] = val;
+            },
+            startValue: data != null ? data[mKey] : null,
+            keyboardType: TextInputType.url,
           );
           break;
         case ItemType.NUMBER:

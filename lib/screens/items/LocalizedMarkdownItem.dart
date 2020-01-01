@@ -71,8 +71,10 @@ class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
                 debugPrint('zefyr returned: $res');
                 if (res != null) {
                   mdRu = res;
-                  mdEn = await widget.translator
-                      .translate(mdRu, from: 'ru', to: 'en');
+                  mdEn = (await widget.translator
+                          .translate(mdRu, from: 'ru', to: 'en'))
+                      .replaceAll('] (', '](')
+                      .replaceAll(': //', '://');
                   debugPrint('translated text: $mdEn');
                   setState(() {});
                   widget.onChanged(LocalizedString(mdRu, mdEn).toMap());

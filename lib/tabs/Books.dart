@@ -19,7 +19,8 @@ class Books extends CallableWidget {
     'tags': ItemType.TAGS,
   }, {
     'description': ItemType.LOCALIZED_MARKDOWN_STRING,
-    'site': ItemType.STRING
+    'videos': ItemType.LIST_STRING,
+    'site': ItemType.URL
   });
 
   @override

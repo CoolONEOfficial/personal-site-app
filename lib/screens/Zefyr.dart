@@ -71,7 +71,7 @@ class ScreenZefyrState extends State<ScreenZefyr> {
                 await _saveDocument(context);
                 return Navigator.pop(
                   context,
-                  trim(notusMarkdown.encode(_controller.document.toDelta())),
+                  trim(notusMarkdown.encode(_controller.document.toDelta())).replaceAll('\n\n', '\n'),
                 );
               },
             ),

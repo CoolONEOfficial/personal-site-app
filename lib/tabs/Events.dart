@@ -43,7 +43,7 @@ class Events extends CallableWidget {
   }, {
     'description': ItemType.LOCALIZED_MARKDOWN_STRING,
     'videos': ItemType.LIST_STRING,
-    'site': ItemType.STRING
+    'site': ItemType.URL
   });
 
   @override

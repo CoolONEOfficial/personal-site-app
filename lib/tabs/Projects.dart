@@ -38,8 +38,11 @@ class Projects extends CallableWidget {
     'tags': ItemType.TAGS,
   }, {
     'description': ItemType.LOCALIZED_MARKDOWN_STRING,
-    'github': ItemType.STRING,
-    'site': ItemType.STRING
+    'videos': ItemType.LIST_STRING,
+    'github': ItemType.URL,
+    'google_play': ItemType.URL,
+    'app_store': ItemType.URL,
+    'site': ItemType.URL
   });
 
   @override
