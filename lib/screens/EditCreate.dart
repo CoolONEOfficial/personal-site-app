@@ -44,9 +44,8 @@ class ItemDoc {
 
   const ItemDoc(this.previewDoc, this.pageDoc);
 
-  static fromRootDoc(DocumentSnapshot rootDoc) async =>
-      ItemDoc(rootDoc,
-          (await rootDoc.reference.collection('page').document('doc').get()));
+  static fromRootDoc(DocumentSnapshot rootDoc) async => ItemDoc(rootDoc,
+      (await rootDoc.reference.collection('page').document('doc').get()));
 }
 
 class ScreenEditCreate extends StatefulWidget {
@@ -59,9 +58,9 @@ class ScreenEditCreate extends StatefulWidget {
 
   const ScreenEditCreate.create(this.itemMap, this.rootCollRef,
       {this.mode = EditCreateMode.CREATE,
-        this.itemDoc = const ItemDoc(null, null),
-        this.data = const ItemData({}, {}),
-        Key key})
+      this.itemDoc = const ItemDoc(null, null),
+      this.data = const ItemData({}, {}),
+      Key key})
       : super(key: key);
 
   const ScreenEditCreate.edit(this.itemMap, this.data, this.itemDoc,
@@ -93,11 +92,7 @@ enum ItemType {
 }
 
 class _ScreenEditCreateState extends State<ScreenEditCreate> {
-  ScreenEditCreateArgs get args =>
-      ModalRoute
-          .of(context)
-          .settings
-          .arguments;
+  ScreenEditCreateArgs get args => ModalRoute.of(context).settings.arguments;
 
   ItemData tempData = ItemData({}, {});
 
@@ -118,18 +113,20 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         itemDoc.pageDoc, false);
   }
 
-  _initList(Map<String, dynamic> map,
-      Map<String, dynamic> data,
-      Map<String, dynamic> tempData,
-      DocumentSnapshot ssDoc,
-      bool previewDoc,) {
+  _initList(
+    Map<String, dynamic> map,
+    Map<String, dynamic> data,
+    Map<String, dynamic> tempData,
+    DocumentSnapshot ssDoc,
+    bool previewDoc,
+  ) {
     map.forEach((mKey, mVal) {
       var item;
       switch (mVal) {
         case ItemType.LOCALIZED_STRING:
           item = LocalizedStringItem(
             mKey,
-                (val) {
+            (val) {
               tempData[mKey] = val;
             },
             startValue: data[mKey] != null
@@ -140,12 +137,13 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.LOCALIZED_MARKDOWN_STRING:
           item = LocalizedMarkdownItem(
             mKey,
-                (val) {
+            (val) {
               final writeVal = {
-                'ru': (val['ru'] as String).replaceAll('\n', '\\n'),
-                'en': (val['en'] as String).replaceAll('\n', '\\n')
+                'ru': (val['ru'] as String)?.replaceAll(r'\n\n', '\\n') ?? '',
+                'en': (val['en'] as String)?.replaceAll(r'\n\n', '\\n') ?? ''
               };
-              debugPrint('write val: $writeVal');
+              debugPrint(
+                  'write val: ru: ${writeVal['ru']} en: ${writeVal['en']}');
               tempData[mKey] = writeVal;
             },
             startValue: data != null && data[mKey] != null
@@ -159,7 +157,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.LOCALIZED_MULTILINE_STRING:
           item = LocalizedStringItem(
             mKey,
-                (val) {
+            (val) {
               debugPrint('wr val: $val');
               tempData[mKey] = val;
             },
@@ -172,7 +170,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.STRING:
           item = StringItem(
             mKey,
-                (val) {
+            (val) {
               debugPrint('write string "$val" on key "$mKey"');
               tempData[mKey] = val;
             },
@@ -192,17 +190,17 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.LIST_STRING:
           item = ListStringItem(
             mKey,
-                (val) {
+            (val) {
               tempData[mKey] = val;
             },
             startValue:
-            data[mKey] != null ? List<String>.from(data[mKey]) : null,
+                data[mKey] != null ? List<String>.from(data[mKey]) : null,
           );
           break;
         case ItemType.BOOL:
           item = BoolItem(
             mKey,
-                (val) {
+            (val) {
               tempData[mKey] = val;
             },
             startValue: data[mKey],
@@ -211,7 +209,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.DATE:
           item = DateItem(
             mKey,
-                (val) {
+            (val) {
               tempData[mKey] = val;
             },
             startValue: data[mKey]?.toDate(),
@@ -220,7 +218,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.LOCATION:
           item = LocationItem(
             mKey,
-                (val) {
+            (val) {
               debugPrint('new location: $val');
               tempData[mKey] = val;
             },
@@ -242,7 +240,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.IMAGES:
           item = ImagesItem(
             mKey,
-                (val) {
+            (val) {
               tempData[mKey] = val;
             },
             startValue: data[mKey],
@@ -252,7 +250,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.SELECT_EVENTS:
           item = SelectItem(
             mKey,
-                (val) {
+            (val) {
               tempData[mKey] = val;
             },
             eventsEnumMap,
@@ -262,7 +260,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.SELECT_ACHIEVEMENTS:
           item = SelectItem(
             mKey,
-                (val) {
+            (val) {
               tempData[mKey] = val;
             },
             achievementsEnumMap,
@@ -272,7 +270,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.SELECT_PLATFORMS:
           item = SelectItem(
             mKey,
-                (val) {
+            (val) {
               tempData[mKey] = val;
             },
             platformsEnumMap,
@@ -282,7 +280,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.SELECT_PROJECT_TYPE:
           item = SelectItem(
             mKey,
-                (val) {
+            (val) {
               tempData[mKey] = val;
             },
             projectsEnumMap,
@@ -294,17 +292,19 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             tempData[mKey] = val;
           },
               startValue:
-              data[mKey] != null ? List<String>.from(data[mKey]) : []);
+                  data[mKey] != null ? List<String>.from(data[mKey]) : []);
           break;
       }
       list.add(item);
     });
   }
 
-  _syncImages(Map<String, ItemType> itemMapData,
-      Map<String, dynamic> tempItemData,
-      Map<String, dynamic> itemData,
-      DocumentReference refDoc,) async {
+  _syncImages(
+    Map<String, ItemType> itemMapData,
+    Map<String, dynamic> tempItemData,
+    Map<String, dynamic> itemData,
+    DocumentReference refDoc,
+  ) async {
     for (var mEntry in itemMapData.entries) {
       final mName = mEntry.key,
           mType = mEntry.value,
@@ -383,13 +383,14 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
     );
   }
 
-  Future<DocumentReference> _uploadItemData(Map<String, ItemType> itemMapData,
-      Map<String, dynamic> tempItemData,
-      Map<String, dynamic> itemData,
-      DocumentReference docRef,
-      CollectionReference collRef, {
-        String createDocName,
-      }) async {
+  Future<DocumentReference> _uploadItemData(
+    Map<String, ItemType> itemMapData,
+    Map<String, dynamic> tempItemData,
+    Map<String, dynamic> itemData,
+    DocumentReference docRef,
+    CollectionReference collRef, {
+    String createDocName,
+  }) async {
     var copyTempData = Map.from(tempItemData);
     for (var mEntry in itemMapData.entries) {
       final mName = mEntry.key,
@@ -443,8 +444,8 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         title: Text(widget.rootCollRef != null
             ? 'New item in ${widget.rootCollRef.path}'
             : widget.itemDoc.previewDoc.data.containsKey('title')
-            ? widget.itemDoc.previewDoc.data['title']['en']
-            : '...'),
+                ? widget.itemDoc.previewDoc.data['title']['en']
+                : '...'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context, false),

@@ -17,7 +17,7 @@ class LocalizedMarkdownItem extends StatefulWidget {
   final Map<String, dynamic> startValue;
   final Function(Map<String, dynamic>) onChanged;
   final TextInputType inputType;
-  final translator = new GoogleTranslator();
+  final translator = GoogleTranslator();
   final bool saveJson, readJson;
 
   LocalizedMarkdownItem(
@@ -68,10 +68,12 @@ class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
                     arguments: ScreenZefyrArgs(mdRu,
                         saveJsonName: widget.saveJson ? docRu : null,
                         fromJsonName: widget.readJson ? docRu : null)));
+                debugPrint('zefyr returned: $res');
                 if (res != null) {
                   mdRu = res;
                   mdEn = await widget.translator
                       .translate(mdRu, from: 'ru', to: 'en');
+                  debugPrint('translated text: $mdEn');
                   setState(() {});
                   widget.onChanged(LocalizedString(mdRu, mdEn).toMap());
                 }
