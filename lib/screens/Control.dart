@@ -39,21 +39,6 @@ class _ScreenControlState extends State<ScreenControl>
     super.initState();
   }
 
-  void createRecord() async {
-//    await databaseReference.collection("testtest")
-//        .document()
-//        .setData({
-//      'title': 'Mastering Flutter',
-//      'description': 'Programming Guide for Dart'
-//    }); its update
-
-    DocumentReference ref = await databaseReference.collection("testtest").add({
-      'title': 'Flutter in Action',
-      'description': 'Complete Programming Guide to learn Flutter'
-    });
-    print(ref.documentID);
-  }
-
   static const tabs = [
     {'icon': Icons.star, 'name': 'achievements'},
     {'icon': Icons.today, 'name': 'events'},

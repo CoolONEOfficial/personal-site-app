@@ -181,7 +181,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.STRING:
           item = StringItem(
             mKey,
-                (val) {
+            (val) {
               debugPrint('write string "$val" on key "$mKey"');
               tempData[mKey] = val;
             },
@@ -205,8 +205,9 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             (val) {
               tempData[mKey] = val;
             },
-            startValue:
-                data != null && data[mKey] != null ? List<String>.from(data[mKey]) : null,
+            startValue: data != null && data[mKey] != null
+                ? List<String>.from(data[mKey])
+                : null,
           );
           break;
         case ItemType.BOOL:
@@ -437,7 +438,11 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         debugPrint('create data: ' + copyTempData.toString());
         final Map<String, dynamic> createData = Map.from(copyTempData);
         if (createDocName != null) {
-          await collRef.document(createDocName).setData(createData);
+          await collRef
+              .document('doc')
+              .collection('timeline')
+              .document(createDocName)
+              .setData(createData);
           return collRef.document(createDocName);
         } else {
           return await collRef.add(createData);

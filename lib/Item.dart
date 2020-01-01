@@ -64,18 +64,17 @@ class _ItemState extends State<Item> {
       imageFolder = 'images/1';
     else if (data.containsKey('singleImage')) imageFolder = 'singleImage/1';
 
-    final imgPath = '${widget.itemDoc.previewDoc.reference.path}/${imageFolder}_400x400.jpg';
+    final docSs = widget.itemDoc.previewDoc;
+    final docPath = docSs.reference.path;
+    final imgPath =
+        '${docPath.substring(0, docPath.indexOf('/'))}/${docSs.documentID}/${imageFolder}_400x400.jpg';
 
     debugPrint('imgpath: $imgPath');
 
     return ListTile(
       leading: imageFolder != null
           ? buildFutureBuilder(
-              storageReference
-                  .child(
-                    imgPath
-                  )
-                  .getDownloadURL(),
+              storageReference.child(imgPath).getDownloadURL(),
               (url) => Image.network(url),
               fixedWidth: 100,
             )

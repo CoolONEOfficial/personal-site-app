@@ -4,6 +4,7 @@ import 'package:personal_site_app/Item.dart';
 import 'package:personal_site_app/components.dart';
 import 'package:personal_site_app/main.dart';
 import 'package:personal_site_app/screens/EditCreate.dart';
+
 class TabList extends StatefulWidget {
   final String collName;
   final ItemMap itemMap;
@@ -18,15 +19,18 @@ class _TabListState extends State<TabList> {
   @override
   Widget build(BuildContext ctx) {
     return buildFutureBuilder(
-        databaseReference.collection(widget.collName).getDocuments(),
-            (QuerySnapshot ss) {
-          return ListView.builder(
-            itemCount: ss.documents.length,
-            itemBuilder: (context, index) {
-              final mDoc = ss.documents[index];
-              return buildFutureBuilder(
-                  ItemDoc.fromRootDoc(mDoc),
-                      (itemDoc) => Item(
+        databaseReference
+            .collection(widget.collName)
+            .document('doc')
+            .collection('timeline')
+            .getDocuments(), (QuerySnapshot ss) {
+      return ListView.builder(
+        itemCount: ss.documents.length,
+        itemBuilder: (context, index) {
+          final mDoc = ss.documents[index];
+          return buildFutureBuilder(
+              ItemDoc.fromRootDoc(mDoc),
+              (itemDoc) => Item(
                     itemDoc,
                     widget.itemMap,
                     onEditClicked: () async {
@@ -44,8 +48,8 @@ class _TabListState extends State<TabList> {
                       setState(() {});
                     },
                   ));
-            },
-          );
-        });
+        },
+      );
+    });
   }
 }
