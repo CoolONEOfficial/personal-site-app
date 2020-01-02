@@ -75,7 +75,9 @@ class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
                           .translate(mdRu, from: 'ru', to: 'en'))
                       .replaceAll('] (', '](')
                       .replaceAll(': //', '://')
-                      .replaceAll('-', '–');
+                      .replaceAll(' - ', ' – ')
+                      .replaceAll('[ ', '[')
+                      .replaceAll(' ]', ']');
                   debugPrint('translated text: $mdEn');
                   setState(() {});
                   widget.onChanged(LocalizedString(mdRu, mdEn).toMap());

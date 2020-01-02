@@ -114,6 +114,9 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         itemDoc.pageDoc, false);
   }
 
+  getDocPath(DocumentReference ref) =>
+      '${ref?.path?.substring(0, ref?.path?.indexOf('/'))}/${ref?.documentID}';
+
   _initList(
     Map<String, dynamic> map,
     Map<String, dynamic> data,
@@ -123,7 +126,6 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
   ) {
     map.forEach((mKey, mVal) {
       var item;
-      final docPath = '${ssDoc?.reference?.path?.substring(0, ssDoc.reference.path.indexOf('/'))}/${ssDoc.documentID}';
       switch (mVal) {
         case ItemType.LOCALIZED_STRING:
           item = LocalizedStringItem(
@@ -244,12 +246,12 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.IMAGE_SINGLE:
           item = ImageSingleItem(mKey, (val) {
             tempData[mKey] = val;
-          }, startValue: data[mKey], docPath: docPath);
+          }, startValue: data[mKey], docPath: getDocPath(ssDoc?.reference));
           break;
         case ItemType.IMAGE_LOGO:
           item = ImageSingleItem(mKey, (val) {
             tempData[mKey] = val;
-          }, startValue: data[mKey], docPath: docPath);
+          }, startValue: data[mKey], docPath: getDocPath(ssDoc?.reference));
           break;
         case ItemType.IMAGES:
           item = ImagesItem(
@@ -258,7 +260,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               tempData[mKey] = val;
             },
             startValue: data[mKey],
-            docPath: docPath,
+            docPath: getDocPath(ssDoc?.reference),
           );
           break;
         case ItemType.SELECT_EVENTS:
@@ -313,6 +315,8 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
     });
   }
 
+
+
   _syncImages(
     Map<String, ItemType> itemMapData,
     Map<String, dynamic> tempItemData,
@@ -335,7 +339,8 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             if (mVal is FileImage) {
               debugPrint('uploading image..');
               await storageReference
-                  .child('${refDoc.path}/$mName/1.jpg')
+                  .child(
+                      '${getDocPath(refDoc)}/$mName/1.jpg')
                   .putFile(mVal.file)
                   .onComplete;
               debugPrint('upload complete!');
@@ -350,7 +355,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               final FileImage mImage = mVal[mId];
               debugPrint('uploading image..');
               await storageReference
-                  .child('${refDoc.path}/images/${(mId + 1).toString()}.jpg')
+                  .child('${getDocPath(refDoc)}/$mName/${(mId + 1).toString()}.jpg')
                   .putFile(mImage.file)
                   .onComplete;
               debugPrint('upload complete! deleting cached image..');
