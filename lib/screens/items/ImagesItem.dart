@@ -87,27 +87,30 @@ class _ImagesItemState extends State<ImagesItem> {
         )
       : Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          children: imagesList
-              .map<Widget>((mImage) => Image(
+          children: (imagesList
+              .map<Widget>((mImage) => mImage != null ? Image(
                     image: mImage,
-                  ))
+                  ) : Container())
               .toList()
               .sublist(0, imagesList.length > 3 ? 3 : imagesList.length)
                 ..add(IconButton(
                   icon: Icon(Icons.delete),
                   onPressed: deleteImage,
-                )),
+                ))) ?? [],
         );
 
   loadImages() async {
     var imageId = 1;
     do {
+      debugPrint('image num $imageId');
       try {
         final imgPath = '${widget.docPath}/images/$imageId.jpg';
         debugPrint('mPath: $imgPath');
+        final src = (await storageReference.child(imgPath).getDownloadURL()) ?? '';
+        debugPrint('src: $src');
         imagesList.add(
           NetworkImage(
-            await storageReference.child(imgPath).getDownloadURL(),
+            src,
           ),
         );
       } catch (e) {

@@ -123,6 +123,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
   ) {
     map.forEach((mKey, mVal) {
       var item;
+      final docPath = '${ssDoc?.reference?.path?.substring(0, ssDoc.reference.path.indexOf('/'))}/${ssDoc.documentID}';
       switch (mVal) {
         case ItemType.LOCALIZED_STRING:
           item = LocalizedStringItem(
@@ -243,12 +244,12 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         case ItemType.IMAGE_SINGLE:
           item = ImageSingleItem(mKey, (val) {
             tempData[mKey] = val;
-          }, startValue: data[mKey], docPath: ssDoc?.reference?.path);
+          }, startValue: data[mKey], docPath: docPath);
           break;
         case ItemType.IMAGE_LOGO:
           item = ImageSingleItem(mKey, (val) {
             tempData[mKey] = val;
-          }, startValue: data[mKey], docPath: ssDoc?.reference?.path);
+          }, startValue: data[mKey], docPath: docPath);
           break;
         case ItemType.IMAGES:
           item = ImagesItem(
@@ -257,7 +258,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               tempData[mKey] = val;
             },
             startValue: data[mKey],
-            docPath: ssDoc?.reference?.path,
+            docPath: docPath,
           );
           break;
         case ItemType.SELECT_EVENTS:
@@ -445,7 +446,10 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               .setData(createData);
           return collRef.document(createDocName);
         } else {
-          return await collRef.add(createData);
+          return await collRef
+              .document('doc')
+              .collection('timeline')
+              .add(createData);
         }
 
         break;
