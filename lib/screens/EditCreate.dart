@@ -181,7 +181,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             startValue: data != null ? data[mKey] : null,
           );
           break;
-        case ItemType.STRING:
+        case ItemType.URL:
           item = StringItem(
             mKey,
             (val) {
@@ -315,8 +315,6 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
     });
   }
 
-
-
   _syncImages(
     Map<String, ItemType> itemMapData,
     Map<String, dynamic> tempItemData,
@@ -339,8 +337,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             if (mVal is FileImage) {
               debugPrint('uploading image..');
               await storageReference
-                  .child(
-                      '${getDocPath(refDoc)}/$mName/1.jpg')
+                  .child('${getDocPath(refDoc)}/$mName/1.jpg')
                   .putFile(mVal.file)
                   .onComplete;
               debugPrint('upload complete!');
@@ -355,7 +352,8 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
               final FileImage mImage = mVal[mId];
               debugPrint('uploading image..');
               await storageReference
-                  .child('${getDocPath(refDoc)}/$mName/${(mId + 1).toString()}.jpg')
+                  .child(
+                      '${getDocPath(refDoc)}/$mName/${(mId + 1).toString()}.jpg')
                   .putFile(mImage.file)
                   .onComplete;
               debugPrint('upload complete! deleting cached image..');
@@ -377,7 +375,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
       tempData.previewData,
       widget.data.previewData,
       widget.itemDoc.previewDoc?.reference,
-      widget.rootCollRef,
+      widget.rootCollRef.document('doc').collection('timeline'),
     );
     await _uploadItemData(
       widget.itemMap.pageMap,
@@ -444,17 +442,10 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         debugPrint('create data: ' + copyTempData.toString());
         final Map<String, dynamic> createData = Map.from(copyTempData);
         if (createDocName != null) {
-          await collRef
-              .document('doc')
-              .collection('timeline')
-              .document(createDocName)
-              .setData(createData);
+          await collRef.document(createDocName).setData(createData);
           return collRef.document(createDocName);
         } else {
-          return await collRef
-              .document('doc')
-              .collection('timeline')
-              .add(createData);
+          return await collRef.add(createData);
         }
 
         break;
