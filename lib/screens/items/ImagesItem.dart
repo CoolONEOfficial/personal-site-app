@@ -21,10 +21,10 @@ class ImagesItem extends StatefulWidget {
   @override
   _ImagesItemState createState() => _ImagesItemState();
 
-  static Future deleteStorageImages(path) async {
+  static Future deleteStorageImages(path, name) async {
     var imageId = 1;
     do {
-      final imgStr = '$path/images/$imageId';
+      final imgStr = '$path/$name/$imageId';
       debugPrint('deleting old images.. $imgStr');
       try {
         await Future.wait([

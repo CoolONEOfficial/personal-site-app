@@ -7,7 +7,7 @@ import 'package:personal_site_app/main.dart';
 class ImageSingleItem extends StatefulWidget {
   final String name;
   final String docPath;
-  final bool startValue;
+  final String startValue;
   final Function(ImageProvider) onChanged;
 
   ImageSingleItem(
@@ -20,13 +20,14 @@ class ImageSingleItem extends StatefulWidget {
   @override
   _ImageSingleItemState createState() => _ImageSingleItemState();
 
-  static Future deleteStorageSingleImage(String path, String name) async {
+  static Future deleteStorageSingleImage(
+      String path, String name, String ext) async {
     final imgStr = '$path/$name/';
-    debugPrint('deleting old singleimage.. $imgStr');
+    debugPrint('deleting old singleimage.. $imgStr ext: $ext');
     try {
       await Future.wait([
-        storageReference.child('${imgStr}1.jpg').delete(),
-        storageReference.child('${imgStr}1_400x400.jpg').delete()
+        storageReference.child('${imgStr}1$ext').delete(),
+        storageReference.child('${imgStr}1_400x400$ext').delete()
       ]);
     } catch (e) {
       debugPrint('error while deleting singleimage: $e');
@@ -43,17 +44,11 @@ class _ImageSingleItemState extends State<ImageSingleItem> {
     final image = await ImagePicker.pickImage(
         source: ImageSource.gallery, imageQuality: 80);
 
-    if (path.extension(image.path) == '.jpg') {
-      changed = true;
-      imageProvider = FileImage(image);
-      localSelected = true;
-      setState(() {});
-      widget.onChanged(imageProvider);
-    } else {
-      Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text('Only jpg supported!'),
-      ));
-    }
+    changed = true;
+    imageProvider = FileImage(image);
+    localSelected = true;
+    setState(() {});
+    widget.onChanged(imageProvider);
   }
 
   deleteImage() {
@@ -86,12 +81,13 @@ class _ImageSingleItemState extends State<ImageSingleItem> {
 
   @override
   Widget build(BuildContext ctx) {
+    debugPrint('start val: ${widget.startValue}');
     return ListTile(
         title: Text(widget.name),
-        trailing: !changed && widget.startValue == true
+        trailing: !changed && widget.startValue != null
             ? buildFutureBuilder(
                 storageReference
-                    .child('${widget.docPath}/${widget.name}/1.jpg')
+                    .child('${widget.docPath}/${widget.name}/1${widget.startValue}')
                     .getDownloadURL(),
                 (imageUrl) {
                   imageProvider = NetworkImage(imageUrl);

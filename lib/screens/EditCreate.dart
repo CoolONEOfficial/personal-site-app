@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:personal_site_app/Item.dart';
 import 'package:personal_site_app/main.dart';
 import 'package:personal_site_app/screens/items/BoolItem.dart';
 import 'package:personal_site_app/screens/items/DateItem.dart';
@@ -16,6 +17,7 @@ import 'package:personal_site_app/tabs/Achievements.dart';
 import 'package:personal_site_app/tabs/Events.dart';
 import 'package:personal_site_app/tabs/Projects.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:path/path.dart';
 
 class ScreenEditCreateArgs {}
 
@@ -83,7 +85,6 @@ enum ItemType {
   DATE,
   LOCATION,
   IMAGE_SINGLE,
-  IMAGE_LOGO,
   IMAGES,
   SELECT_EVENTS,
   SELECT_ACHIEVEMENTS,
@@ -93,8 +94,6 @@ enum ItemType {
 }
 
 class _ScreenEditCreateState extends State<ScreenEditCreate> {
-  ScreenEditCreateArgs get args => ModalRoute.of(context).settings.arguments;
-
   ItemData tempData = ItemData({}, {});
 
   List<Widget> list = [];
@@ -113,9 +112,6 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
     _initList(widget.itemMap.pageMap, widget.data.pageData, tempData.pageData,
         itemDoc.pageDoc, false);
   }
-
-  getDocPath(DocumentReference ref) =>
-      '${ref?.path?.substring(0, ref?.path?.indexOf('/'))}/${ref?.documentID}';
 
   _initList(
     Map<String, dynamic> map,
@@ -248,11 +244,6 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             tempData[mKey] = val;
           }, startValue: data[mKey], docPath: getDocPath(ssDoc?.reference));
           break;
-        case ItemType.IMAGE_LOGO:
-          item = ImageSingleItem(mKey, (val) {
-            tempData[mKey] = val;
-          }, startValue: data[mKey], docPath: getDocPath(ssDoc?.reference));
-          break;
         case ItemType.IMAGES:
           item = ImagesItem(
             mKey,
@@ -331,13 +322,14 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
         switch (mType) {
           case ItemType.IMAGE_SINGLE:
             if (widget.mode == EditCreateMode.EDIT && mOrigVal != null) {
-              ImageSingleItem.deleteStorageSingleImage(refDoc.path, mName);
+              ImageSingleItem.deleteStorageSingleImage(
+                  getDocPath(refDoc), mName, mOrigVal);
             }
 
             if (mVal is FileImage) {
               debugPrint('uploading image..');
               await storageReference
-                  .child('${getDocPath(refDoc)}/$mName/1.jpg')
+                  .child('${getDocPath(refDoc)}/$mName/1${extension(mVal.file.path)}')
                   .putFile(mVal.file)
                   .onComplete;
               debugPrint('upload complete!');
@@ -345,7 +337,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
             break;
           case ItemType.IMAGES:
             if (widget.mode == EditCreateMode.EDIT && mOrigVal != null) {
-              await ImagesItem.deleteStorageImages(refDoc.path);
+              await ImagesItem.deleteStorageImages(refDoc.path, mName);
             }
 
             for (var mId = 0; mId < mVal.length; mId++) {
@@ -375,7 +367,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
       tempData.previewData,
       widget.data.previewData,
       widget.itemDoc.previewDoc?.reference,
-      widget.rootCollRef.document('doc').collection('timeline'),
+      widget.rootCollRef?.document('doc')?.collection('timeline'),
     );
     await _uploadItemData(
       widget.itemMap.pageMap,
@@ -416,8 +408,8 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
 
       switch (mType) {
         case ItemType.IMAGE_SINGLE:
-          if (mVal is ImageProvider) {
-            copyTempData[mName] = true;
+          if (mVal is FileImage) {
+            copyTempData[mName] = extension(mVal.file.path);
           }
           break;
         case ItemType.IMAGES:
@@ -465,13 +457,13 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
                 : '...'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context, false),
+          onPressed: () => Navigator.pop(ctx, false),
         ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.save),
             onPressed: () async {
-              final pr = new ProgressDialog(context);
+              final pr = new ProgressDialog(ctx);
               pr.show();
 
               await uploadItemData();
@@ -479,7 +471,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
 
               pr.hide();
 
-              Navigator.pop(context, true);
+              Navigator.pop(ctx, true);
             },
           )
         ],

@@ -29,28 +29,30 @@ class _ItemState extends State<Item> {
     debugPrint(
         'deleting: ${widget.itemDoc.previewDoc.reference.path} and page doc..');
 
-    final List<Future> deleteFutures = [
+    await Future.wait(List.from([
+      _deleteItem(widget.itemMap.previewMap, widget.itemDoc.previewDoc.data),
+      _deleteItem(widget.itemMap.pageMap, widget.itemDoc.pageDoc.data),
+    ]));
+
+    await Future.wait(List.from([
       widget.itemDoc.previewDoc.reference.delete(),
       widget.itemDoc.pageDoc.reference.delete(),
-      _deleteItem(widget.itemMap.previewMap),
-      _deleteItem(widget.itemMap.pageMap),
-    ];
-
-    await Future.wait(deleteFutures);
+    ]));
 
     widget.onDeleted();
   }
 
-  _deleteItem(Map itemMap) async {
-    if (itemMap.containsValue(ItemType.IMAGES))
-      await ImagesItem.deleteStorageImages(
-          widget.itemDoc.previewDoc.reference.path);
+  _deleteItem(Map itemMap, Map itemData) async {
+    final docRef = widget.itemDoc.previewDoc.reference;
+    for (String mName
+        in itemMap.keys.where((mKey) => itemMap[mKey] == ItemType.IMAGES)) {
+      await ImagesItem.deleteStorageImages(getDocPath(docRef), mName);
+    }
 
-    final singleImagesNames =
-        itemMap.keys.where((mKey) => itemMap[mKey] == ItemType.IMAGE_SINGLE);
-    for (String mName in singleImagesNames) {
+    for (final mEntry in itemMap.entries
+        .where((mEntry) => mEntry.value == ItemType.IMAGE_SINGLE)) {
       await ImageSingleItem.deleteStorageSingleImage(
-          widget.itemDoc.previewDoc.reference.path, mName);
+          getDocPath(docRef), mEntry.key, itemData[mEntry.key]);
     }
   }
 
@@ -58,16 +60,22 @@ class _ItemState extends State<Item> {
   Widget build(BuildContext ctx) {
     final data = widget.itemDoc.previewDoc.data;
     var imageFolder;
-    if (data.containsKey('logo'))
+    var ext;
+    if (data.containsKey('logo')) {
       imageFolder = 'logo/1';
-    else if (data.containsKey('images'))
+      ext = data['logo'];
+    } else if (data.containsKey('images')) {
       imageFolder = 'images/1';
-    else if (data.containsKey('singleImage')) imageFolder = 'singleImage/1';
+      ext = '.jpg';
+    } else if (data.containsKey('singleImage')) {
+      imageFolder = 'singleImage/1';
+      ext = data['singleImage'];
+    }
 
     final docSs = widget.itemDoc.previewDoc;
     final docPath = docSs.reference.path;
     final imgPath =
-        '${docPath.substring(0, docPath.indexOf('/'))}/${docSs.documentID}/${imageFolder}_400x400.jpg';
+        '${docPath.substring(0, docPath.indexOf('/'))}/${docSs.documentID}/${imageFolder}_400x400$ext';
 
     debugPrint('imgpath: $imgPath');
 
@@ -106,3 +114,7 @@ class _ItemState extends State<Item> {
     );
   }
 }
+
+getDocPath(DocumentReference ref) => ref != null
+    ? '${ref.path?.substring(0, ref.path?.indexOf('/'))}/${ref.documentID}'
+    : null;

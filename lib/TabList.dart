@@ -23,6 +23,7 @@ class _TabListState extends State<TabList> {
             .collection(widget.collName)
             .document('doc')
             .collection('timeline')
+            .orderBy('date', descending: true)
             .getDocuments(), (QuerySnapshot ss) {
       return ListView.builder(
         itemCount: ss.documents.length,
