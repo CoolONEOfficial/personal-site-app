@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:personal_site_app/Translator.dart';
+import 'package:personal_site_app/constants.dart';
 import 'package:personal_site_app/screens/items/LocalizedStringItem.dart';
 import 'package:place_picker/place_picker.dart';
 
@@ -41,8 +43,8 @@ class _LocationItemState extends State<LocationItem> {
   _LocationItemState(Map value) {
     if (value != null) {
       locationModel = Location.fromMap(value);
-      textControllerEn.text = locationModel.title.en;
-      textControllerRu.text = locationModel.title.ru;
+      textControllerEn.text = locationModel.title.translated;
+      textControllerRu.text = locationModel.title.original;
     }
   }
 
@@ -56,7 +58,7 @@ class _LocationItemState extends State<LocationItem> {
     return ListTile(
         title: Text(widget.name),
         subtitle:
-            locationModel != null ? Text(locationModel.title.en) : Container(),
+            locationModel != null ? Text(locationModel.title.translated) : Container(),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -98,10 +100,8 @@ class _LocationItemState extends State<LocationItem> {
                     onPressed: () async {
                       LocationResult result = await Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => PlacePicker(
-                            "AIzaSyCijF4pgTurfxRQ1AZ-dzWa53UuQpCCsG4",
-                          ),
-                        ),
+                            builder: (context) =>
+                                PlacePicker(GOOGLE_MAPS_API_KEY)),
                       );
                       locationModel = Location(
                         LocalizedString(result.name, result.name),

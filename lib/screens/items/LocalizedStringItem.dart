@@ -1,22 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:personal_site_app/Translator.dart';
+import 'package:personal_site_app/components.dart';
 import 'package:translator/translator.dart';
-
-class LocalizedString {
-  final String ru, en;
-
-  const LocalizedString([this.ru = '', this.en = '']);
-
-  static fromMap(Map map) => LocalizedString(map['ru'], map['en']);
-
-  Map<String, dynamic> toMap() => {'ru': ru, 'en': en};
-}
 
 class LocalizedStringItem extends StatefulWidget {
   final String name;
   final Map<String, dynamic> startValue;
   final Function(Map<String, dynamic>) onChanged;
   final TextInputType inputType;
-  final translator = new GoogleTranslator();
+  final translator = new Translator();
 
   LocalizedStringItem(this.name, this.onChanged,
       {this.startValue, this.inputType = TextInputType.text});
@@ -31,12 +23,12 @@ class LocalizedStringItem extends StatefulWidget {
 class _LocalizedStringItemState extends State<LocalizedStringItem> {
   _LocalizedStringItemState(LocalizedString value) {
     debugPrint('value: ' + value.toMap().toString());
-    textControllerRu.text = value.ru;
-    textControllerEn.text = value.en;
+    textControllerFrom.text = value.original;
+    textControllerTo.text = value.translated;
   }
 
-  TextEditingController textControllerRu = TextEditingController(),
-      textControllerEn = TextEditingController();
+  TextEditingController textControllerFrom = TextEditingController(),
+      textControllerTo = TextEditingController();
 
   @override
   Widget build(BuildContext ctx) {
@@ -48,13 +40,13 @@ class _LocalizedStringItemState extends State<LocalizedStringItem> {
           Container(
             width: 150,
             child: TextField(
-              controller: textControllerRu,
+              controller: textControllerFrom,
               keyboardType: widget.inputType,
               maxLines: widget.inputType == TextInputType.multiline ? null : 1,
               decoration: InputDecoration(hintText: 'Ru'),
               onChanged: (str) {
                 widget.onChanged(
-                    LocalizedString(str, textControllerEn.text).toMap());
+                    LocalizedString(str, textControllerTo.text).toMap());
               },
             ),
           ),
@@ -63,58 +55,35 @@ class _LocalizedStringItemState extends State<LocalizedStringItem> {
             onPressed: () {
               showDialog(
                   context: ctx,
-                  builder: (ctx) => SimpleDialog(
-                        title: Text('Translate direction'),
-                        children: <Widget>[
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.max,
-                            children: <Widget>[
-                              FlatButton(
-                                child: Text('Ru -> En'),
-                                onPressed: () async {
-                                  textControllerEn.text = await widget
-                                      .translator
-                                      .translate(textControllerRu.text,
-                                          from: 'ru', to: 'en');
-                                  widget.onChanged(LocalizedString(
-                                          textControllerRu.text,
-                                          textControllerEn.text)
-                                      .toMap());
-                                  Navigator.of(ctx).pop();
-                                },
-                              ),
-                              FlatButton(
-                                child: Text('Ru <- En'),
-                                onPressed: () async {
-                                  textControllerRu.text = await widget
-                                      .translator
-                                      .translate(textControllerEn.text,
-                                          from: 'en', to: 'ru');
-                                  widget.onChanged(LocalizedString(
-                                          textControllerRu.text,
-                                          textControllerEn.text)
-                                      .toMap());
-                                  Navigator.of(ctx).pop();
-                                },
-                              ),
-                            ],
-                          )
-                        ],
-                      ));
+                  builder: (ctx) => buildDialogTranslate(
+                        ctx,
+                        widget.translator,
+                        textControllerFrom.text,
+                        textControllerTo.text,
+                        (text, lang) {
+                          (lang == 'ru' ? textControllerFrom : textControllerTo)
+                              .text = text;
+                          widget.onChanged(
+                            LocalizedString(
+                              textControllerFrom.text,
+                              textControllerTo.text,
+                            ).toMap(),
+                          );
+                        },
+                      )
+                  );
             },
           ),
           Container(
             width: 150,
             child: TextField(
-              controller: textControllerEn,
+              controller: textControllerTo,
               keyboardType: widget.inputType,
               maxLines: widget.inputType == TextInputType.multiline ? null : 1,
               decoration: InputDecoration(hintText: 'En'),
               onChanged: (str) {
                 widget.onChanged(
-                    LocalizedString(textControllerRu.text, str).toMap());
+                    LocalizedString(textControllerFrom.text, str).toMap());
               },
             ),
           ),

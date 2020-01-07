@@ -2,6 +2,11 @@
 
 Mobile application for administering a personal site written on Flutter.
 
+### Features
+
+* Google&Yandex translate support
+* Firebase Firestore and Storage integration
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

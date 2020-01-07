@@ -17,6 +17,7 @@ class Achievements extends CallableWidget {
     'date': ItemType.DATE,
     'description': ItemType.LOCALIZED_MARKDOWN_STRING,
     'singleImage': ItemType.IMAGE_SINGLE,
+    'images': ItemType.IMAGES,
     'logo': ItemType.IMAGE_SINGLE,
     'organisation': ItemType.STRING,
     'tags': ItemType.TAGS,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:personal_site_app/Translator.dart';
 
 Widget buildFutureBuilder<T>(
   Future<T> future,
@@ -93,6 +94,56 @@ Widget buildDialogDelete(
               child: Text('Отмена'),
               onPressed: Navigator.of(ctx).pop,
             )
+          ],
+        )
+      ],
+    );
+
+Widget buildDialogTranslate(
+  BuildContext ctx,
+  Translator translator,
+  String fromText,
+  String toText,
+  Function(String result, String lang) onTranslate, {
+  String from = 'ru',
+  String to = 'en',
+}) =>
+    SimpleDialog(
+      title: Text('Translate direction'),
+      children: <Widget>[
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            FlatButton(
+              child: Text('$from -> $to'),
+              onPressed: () async {
+                onTranslate(
+                  await translator.translate(
+                    fromText,
+                    from: from,
+                    to: to,
+                  ),
+                  to,
+                );
+                Navigator.of(ctx).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('$to <- $from'),
+              onPressed: () async {
+                onTranslate(
+                  await translator.translate(
+                    toText,
+                    from: to,
+                    to: from,
+                  ),
+                  from,
+                );
+                Navigator.of(ctx).pop();
+              },
+            ),
           ],
         )
       ],

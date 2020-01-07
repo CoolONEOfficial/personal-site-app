@@ -1,23 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:personal_site_app/Translator.dart';
+import 'package:personal_site_app/components.dart';
+import 'package:personal_site_app/constants.dart';
 import 'package:personal_site_app/screens/Zefyr.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:translator/translator.dart';
-
-class LocalizedString {
-  final String ru, en;
-
-  const LocalizedString([this.ru = '', this.en = '']);
-
-  static fromMap(Map map) => LocalizedString(map['ru'], map['en']);
-
-  Map<String, dynamic> toMap() => {'ru': ru, 'en': en};
-}
 
 class LocalizedMarkdownItem extends StatefulWidget {
   final String name;
   final Map<String, dynamic> startValue;
   final Function(Map<String, dynamic>) onChanged;
   final TextInputType inputType;
-  final translator = GoogleTranslator();
+  final translator = Translator();
   final bool saveJson, readJson;
 
   LocalizedMarkdownItem(
@@ -39,65 +33,93 @@ class LocalizedMarkdownItem extends StatefulWidget {
 class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
   _LocalizedMarkdownItemState(LocalizedString value) {
     debugPrint('value: ' + value.toMap().toString());
-    mdRu = value.ru;
-    mdEn = value.en;
+    mdFrom = value.original;
+    mdTo = value.translated;
   }
 
-  String mdRu, mdEn;
+  String mdFrom, mdTo;
 
   @override
   Widget build(BuildContext ctx) {
-    final docRu = '${widget.name}_ru', docEn = '${widget.name}_en';
+    final docRu = '${widget.name}_$FROM_LANG',
+        docEn = '${widget.name}_$TO_LANG';
     return ListTile(
       title: Text(widget.name),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Container(
-            child: SelectableText(mdRu ?? ''),
-            width: 100,
-          ),
-          Container(
-            child: SelectableText(mdEn ?? ''),
-            width: 100,
-          ),
-          IconButton(
-              icon: Icon(Icons.text_fields),
-              onPressed: () async {
+          GestureDetector(
+              onTap: () async {
                 final res = (await Navigator.pushNamed(ctx, ScreenZefyr.route,
-                    arguments: ScreenZefyrArgs(mdRu,
+                    arguments: ScreenZefyrArgs(mdFrom,
                         saveJsonName: widget.saveJson ? docRu : null,
                         fromJsonName: widget.readJson ? docRu : null)));
-                debugPrint('zefyr returned: $res');
                 if (res != null) {
-                  mdRu = res;
-                  mdEn = (await widget.translator
-                          .translate(mdRu, from: 'ru', to: 'en'))
-                      .replaceAll('] (', '](')
-                      .replaceAll(': //', '://')
-                      .replaceAll(' - ', ' – ')
-                      .replaceAll('[ ', '[')
-                      .replaceAll(' ]', ']');
-                  debugPrint('translated text: $mdEn');
-                  setState(() {});
-                  widget.onChanged(LocalizedString(mdRu, mdEn).toMap());
+                  mdFrom = res;
+                  widget.onChanged(LocalizedString(mdFrom, mdTo).toMap());
                 }
-              }),
+              },
+              child: Container(
+                child: mdFrom == null || mdFrom.isEmpty
+                    ? Text(
+                        'Tap here to edit original text',
+                        style: TextStyle(color: Colors.grey),
+                      )
+                    : SelectableText(mdFrom ?? ''),
+                width: 100,
+              )),
           IconButton(
-              icon: Icon(Icons.translate),
-              onPressed: () async {
-                final res = (await Navigator.pushNamed(
-                  ctx,
-                  ScreenZefyr.route,
-                  arguments: ScreenZefyrArgs(mdEn,
-                      saveJsonName: widget.saveJson ? docEn : null,
-                      fromJsonName: widget.readJson ? docEn : null),
-                ));
-                if (res != null) {
-                  mdEn = res;
-                  widget.onChanged(LocalizedString(mdRu, mdEn).toMap());
-                }
-              })
+            icon: Icon(Icons.translate),
+            onPressed: () {
+              showDialog(
+                  context: ctx,
+                  builder: (ctx) => buildDialogTranslate(
+                        ctx,
+                        widget.translator,
+                        mdFrom,
+                        mdTo,
+                        (text, lang) {
+                          switch (lang) {
+                            case FROM_LANG:
+                              mdFrom = text;
+                              break;
+                            case TO_LANG:
+                              mdTo = text;
+                              break;
+                          }
+                          widget
+                              .onChanged(LocalizedString(mdFrom, mdTo).toMap());
+                        },
+                      ));
+            },
+          ),
+          GestureDetector(
+            onTap: () async {
+              final pr = new ProgressDialog(ctx);
+              pr.show();
+              final res = (await Navigator.pushNamed(
+                ctx,
+                ScreenZefyr.route,
+                arguments: ScreenZefyrArgs(mdTo,
+                    saveJsonName: widget.saveJson ? docEn : null,
+                    fromJsonName: widget.readJson ? docEn : null),
+              ));
+              if (res != null) {
+                mdTo = res;
+                widget.onChanged(LocalizedString(mdFrom, mdTo).toMap());
+              }
+              pr.hide();
+            },
+            child: Container(
+              child: mdTo == null || mdTo.isEmpty
+                  ? Text(
+                      'Tap here to edit translated text',
+                      style: TextStyle(color: Colors.grey),
+                    )
+                  : SelectableText(mdTo ?? ''),
+              width: 100,
+            ),
+          ),
         ],
       ),
     );
