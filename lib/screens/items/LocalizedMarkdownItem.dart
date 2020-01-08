@@ -48,7 +48,7 @@ class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          GestureDetector(
+          InkWell(
               onTap: () async {
                 final res = (await Navigator.pushNamed(ctx, ScreenZefyr.route,
                     arguments: ScreenZefyrArgs(mdFrom,
@@ -65,9 +65,10 @@ class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
                         'Tap here to edit original text',
                         style: TextStyle(color: Colors.grey),
                       )
-                    : SelectableText(mdFrom ?? ''),
+                    : Text(mdFrom ?? ''),
                 width: 100,
-              )),
+              ),
+          ),
           IconButton(
             icon: Icon(Icons.translate),
             onPressed: () {
@@ -93,7 +94,7 @@ class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
                       ));
             },
           ),
-          GestureDetector(
+          InkWell(
             onTap: () async {
               final pr = new ProgressDialog(ctx);
               pr.show();
@@ -116,7 +117,7 @@ class _LocalizedMarkdownItemState extends State<LocalizedMarkdownItem> {
                       'Tap here to edit translated text',
                       style: TextStyle(color: Colors.grey),
                     )
-                  : SelectableText(mdTo ?? ''),
+                  : Text(mdTo ?? ''),
               width: 100,
             ),
           ),
