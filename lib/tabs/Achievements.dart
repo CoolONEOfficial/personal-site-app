@@ -36,7 +36,9 @@ class Achievements extends CallableWidget {
       ctx,
       MaterialPageRoute(
         builder: (context) => ScreenEditCreate.create(
-            Achievements.itemMap, databaseReference.collection('achievements')),
+            Achievements.itemMap,
+            'achievements'
+        ),
       ),
     );
   }

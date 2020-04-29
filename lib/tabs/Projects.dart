@@ -54,7 +54,9 @@ class Projects extends CallableWidget {
       ctx,
       MaterialPageRoute(
         builder: (context) => ScreenEditCreate.create(
-            Projects.itemMap, databaseReference.collection('projects')),
+            Projects.itemMap,
+            'projects'
+        ),
       ),
     );
   }

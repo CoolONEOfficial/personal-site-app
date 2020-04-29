@@ -55,10 +55,10 @@ class ScreenEditCreate extends StatefulWidget {
   final ItemData data;
   final EditCreateMode mode;
   final ItemDoc itemDoc;
-  final CollectionReference rootCollRef;
+  final String timelineType;
   final ItemMap itemMap;
 
-  const ScreenEditCreate.create(this.itemMap, this.rootCollRef,
+  const ScreenEditCreate.create(this.itemMap, this.timelineType,
       {this.mode = EditCreateMode.CREATE,
       this.itemDoc = const ItemDoc(null, null),
       this.data = const ItemData({}, {}),
@@ -66,7 +66,7 @@ class ScreenEditCreate extends StatefulWidget {
       : super(key: key);
 
   const ScreenEditCreate.edit(this.itemMap, this.data, this.itemDoc,
-      {this.mode = EditCreateMode.EDIT, this.rootCollRef, Key key})
+      {this.mode = EditCreateMode.EDIT, this.timelineType, Key key})
       : super(key: key);
 
   @override
@@ -367,7 +367,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
       tempData.previewData,
       widget.data.previewData,
       widget.itemDoc.previewDoc?.reference,
-      widget.rootCollRef?.document('doc')?.collection('timeline'),
+      databaseReference.collection('timeline'),
     );
     await _uploadItemData(
       widget.itemMap.pageMap,
@@ -433,6 +433,7 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
       case EditCreateMode.CREATE:
         debugPrint('create data: ' + copyTempData.toString());
         final Map<String, dynamic> createData = Map.from(copyTempData);
+        createData["timelineType"] = widget.timelineType;
         if (createDocName != null) {
           await collRef.document(createDocName).setData(createData);
           return collRef.document(createDocName);
@@ -450,8 +451,8 @@ class _ScreenEditCreateState extends State<ScreenEditCreate> {
   Widget build(BuildContext ctx) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.rootCollRef != null
-            ? 'New item in ${widget.rootCollRef.path}'
+        title: Text(widget.timelineType != null
+            ? 'New item in ${widget.timelineType}'
             : widget.itemDoc.previewDoc.data.containsKey('title')
                 ? widget.itemDoc.previewDoc.data['title']['en']
                 : '...'),

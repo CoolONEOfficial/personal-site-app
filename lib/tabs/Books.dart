@@ -32,7 +32,9 @@ class Books extends CallableWidget {
       ctx,
       MaterialPageRoute(
         builder: (context) => ScreenEditCreate.create(
-            Books.itemMap, databaseReference.collection('books')),
+          Books.itemMap,
+          'books',
+        )
       ),
     );
   }

@@ -56,7 +56,9 @@ class Events extends CallableWidget {
       ctx,
       MaterialPageRoute(
         builder: (context) => ScreenEditCreate.create(
-            Events.itemMap, databaseReference.collection('events')),
+            Events.itemMap,
+            'events'
+        ),
       ),
     );
   }
