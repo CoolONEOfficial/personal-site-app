@@ -24,7 +24,7 @@ class _SelectItemState extends State<SelectItem> {
     return ListTile(
       title: Text(widget.name),
       trailing: Container(
-        width: 120,
+        width: 220,
         child: DropdownButton<String>(
           value: dropdownModel,
           icon: Icon(Icons.arrow_downward),

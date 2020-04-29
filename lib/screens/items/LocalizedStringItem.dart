@@ -38,7 +38,7 @@ class _LocalizedStringItemState extends State<LocalizedStringItem> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Container(
-            width: 150,
+            width: 100,
             child: TextField(
               controller: textControllerFrom,
               keyboardType: widget.inputType,

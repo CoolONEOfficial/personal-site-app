@@ -29,7 +29,7 @@ dependencies:
   firebase_auth: ^0.15.2
   google_sign_in: ^4.1.0
   progress_dialog: ^1.2.0
-  place_picker: ^0.9.11
+  place_picker: ^0.9.14
   translator: ^0.1.4
   translate: ^1.0.0
   flutter_tagging: ^2.2.0+1
@@ -42,7 +42,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: "^0.7.3"
+  flutter_launcher_icons: ^0.7.3
 
 flutter_icons:
   android: true

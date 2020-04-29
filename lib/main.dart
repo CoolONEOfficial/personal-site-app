@@ -23,7 +23,11 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Personal site app',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        brightness: Brightness.light,
+        primaryColor: Colors.red,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark
       ),
       onGenerateRoute: (RouteSettings settings) {
         print('build route for ${settings.name}');

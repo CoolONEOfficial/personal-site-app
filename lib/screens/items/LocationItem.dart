@@ -63,7 +63,7 @@ class _LocationItemState extends State<LocationItem> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Container(
-              width: 150,
+              width: 100,
               child: TextField(
                 controller: textControllerRu,
                 decoration: InputDecoration(hintText: 'Ru'),
@@ -75,7 +75,7 @@ class _LocationItemState extends State<LocationItem> {
               ),
             ),
             Container(
-              width: 150,
+              width: 100,
               child: TextField(
                 controller: textControllerEn,
                 decoration: InputDecoration(hintText: 'En'),
