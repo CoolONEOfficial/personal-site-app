@@ -20,9 +20,8 @@ class _TabListState extends State<TabList> {
   Widget build(BuildContext ctx) {
     return buildFutureBuilder(
         databaseReference
-            .collection(widget.collName)
-            .document('doc')
             .collection('timeline')
+            .where('timelineType', isEqualTo: widget.collName )
             .orderBy('date', descending: true)
             .getDocuments(), (QuerySnapshot ss) {
       return ListView.builder(
