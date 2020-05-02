@@ -31,6 +31,7 @@ final List<String> eventsEnumMap = [
 class Events extends CallableWidget {
   static const ItemMap itemMap = const ItemMap({
     'type': ItemType.SELECT_EVENTS,
+    'urlName': ItemType.STRING,
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
     'description': ItemType.LOCALIZED_MARKDOWN_STRING,

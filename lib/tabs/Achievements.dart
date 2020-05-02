@@ -13,6 +13,7 @@ final List<String> achievementsEnumMap = [
 class Achievements extends CallableWidget {
   static const ItemMap itemMap = const ItemMap({
     'type': ItemType.SELECT_ACHIEVEMENTS,
+    'urlName': ItemType.STRING,
     'title': ItemType.LOCALIZED_STRING,
     'date': ItemType.DATE,
     'description': ItemType.LOCALIZED_MARKDOWN_STRING,

@@ -11,6 +11,7 @@ import '../main.dart';
 class Books extends CallableWidget {
   static const ItemMap itemMap = const ItemMap({
     'title': ItemType.LOCALIZED_STRING,
+    'urlName': ItemType.STRING,
     'date': ItemType.DATE,
     'description': ItemType.LOCALIZED_MARKDOWN_STRING,
     'singleImage': ItemType.IMAGE_SINGLE,
